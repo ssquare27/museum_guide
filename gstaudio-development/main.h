@@ -3,6 +3,6 @@
 
 #include <iostream>
 #include <gst/gst.h>
-#include "gstaudio.h"
+#include <string>
 
 #endif

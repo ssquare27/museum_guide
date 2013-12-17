@@ -1,0 +1,15 @@
+#ifndef GSTELEMENTLIST_H
+#define GSTELEMENTLIST_H
+
+class GstElementList
+{
+ public:
+  void setElementName(string name);
+  void setElementType(string type);
+  void setElement(GstElement *element)
+  string getElementName();
+  string getElementType();
+ private:
+  GstElement *elementObject_;
+  
+}

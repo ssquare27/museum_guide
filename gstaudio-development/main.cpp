@@ -1,9 +1,10 @@
 #include "main.h"
+#include "gstaudio.h"
 using namespace std;
 
 int main (int argc, char *argv[])
 {
-  gstaudio aplayer;
+  GstAudio aplayer;
   gst_init(NULL, NULL);
-  aplayer.print_version();
+  aplayer.printVersion();
 }
