@@ -4,7 +4,10 @@ using namespace std;
 
 GstAudio::GstAudio(void)
 {
-  elementHead = NULL;
+  elementHead = new(gstElementList);
+  elementHead->elementName.clear();
+  elementHead->elementType.clear();
+  elementHead->element = NULL;
 }
 
 void GstAudio::printVersion()
@@ -35,11 +38,9 @@ void GstAudio::addElementList(GstElement *element, string elementName, string el
   temp->elementName = elementName;
   temp->elementType = elementType;
   temp->element = element;
-  
-  if (elementHead != NULL)
-  {
-    temp->next = elementHead;
-  } 
+  temp->next = NULL;
+
+  temp->next = elementHead;
   //add this node to the linked list
   GstAudio::elementHead = temp;
 }
@@ -52,11 +53,11 @@ void GstAudio::printElementList()
   currentElement = new(gstElementList);
   //iterate through each element in the linked list till null (finished).
   currentElement = elementHead;
-   while (currentElement!=NULL)
+  while (currentElement->elementName != "")
     {
-      cout << currentElement->elementName << endl;
-      if (currentElement)
+      if (currentElement != NULL)
 	{
+	  cout << currentElement->elementName << endl;
 	  currentElement = currentElement->next;
 	}
     }
