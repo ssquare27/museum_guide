@@ -10,6 +10,19 @@ GstAudio::GstAudio(void)
   elementHead->element = NULL;
 }
 
+GstAudio::~GstAudio(void)
+{
+  while (elementHead->elementName != "")
+    {
+      gstElementList temp;
+      //Remove all entrys up to the placeholder
+      temp = elementHead;
+      elementHead = elementHead->next;
+      delete temp;
+    }
+  delete elementHead;
+}
+
 void GstAudio::printVersion()
 {
   gst_version (&version.major, &version.minor, &version.micro, &version.nano);
