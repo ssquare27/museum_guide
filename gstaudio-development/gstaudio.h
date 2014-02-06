@@ -21,7 +21,7 @@ class GstAudio
   GstElement *findE(std::string);
   void playbackAuto();
   void linkAllElements();
-  void addBin(GstElement*);
+  void addBin(GstElement*, GstElement**);
   void addToArray(GstElement**);
 };
 

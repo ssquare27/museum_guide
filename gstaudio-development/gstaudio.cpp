@@ -1,5 +1,6 @@
 //#include "main.h"
 #include "gstaudio.h"
+#include "stdio.h"
 using namespace std;
 
 GstAudio::GstAudio(void)
@@ -57,6 +58,7 @@ void GstAudio::addElementList(GstElement *element, string elementName, string el
   temp->next = NULL;
   
   temp->next = elementHead;
+  //printf("%d\n", &temp->element);
   //add this node to the linked list
   GstAudio::elementHead = temp;
   if (elementOrder > maxElements) 
@@ -117,15 +119,17 @@ void GstAudio::playbackAuto()
 {
   GstElement *pipeline = gst_pipeline_new("audio-player");
   GMainLoop *loop = g_main_loop_new (NULL, FALSE);;
-
+  GstElement **elementArray = new(GstElement*[maxElements]);
   
   
   // gst_bin_add_many (GST_BIN(pipeline), findE("audiotestsrc"), findE("audioconvert"),
   //		    findE("audioresample"), findE("alsasink"), NULL);
-  addBin(pipeline);
+  addBin(pipeline, elementArray);
   //gst_element_link (findE("audiotestsrc"), findE("alsasink"));
   //gst_element_link_many (findE("audioconvert"), findE("audioresample"), NULL);
-  
+  //GstElement *pointer = findE("audiotestsrc");
+  //printf("%d %d\n", &elementArray[1], &pointer);
+  //exit(0);
   gst_element_set_state (pipeline, GST_STATE_PLAYING);
 
   g_print ("Running...\n");
@@ -137,9 +141,9 @@ void GstAudio::linkAllElements()
   
 }
 
-void GstAudio::addBin(GstElement *pipeline) 
+void GstAudio::addBin(GstElement *pipeline, GstElement **elementArray) 
 {
-  GstElement **elementArray = new(GstElement*[maxElements]);
+  //GstElement **elementArray = new(GstElement*[maxElements]);
   int i;
   //GstElement *pipeline  = gst_pipeline_new("audio-player");
   elementArray[0] = pipeline;
@@ -164,29 +168,38 @@ void GstAudio::addToArray(GstElement **eArray)
   innerElement = new(gstElementList);
   //iterate through each element in the linked list till null (finished).
   currentElement = elementHead;
+  innerElement = elementHead;
   elementCount = 1;
   
   while (currentElement->elementName != "")
     {
+      //cout << "out\n";
       if (currentElement != NULL)
 	{
+	  //cout << "out3\n";
 	  while (innerElement->elementName != "")
 	    {
+	      //cout << "In2\n";
 	      if (innerElement != NULL)
 		{
+		  //cout << "In\n";
 		  if (elementCount == innerElement->elementOrder)
 		    {
+		      //printf("%d\n", &innerElement->element);
 		      eArray[elementCount] = innerElement->element;
 		      break;
 		    }
 		  else
 		    {
 		      innerElement = innerElement->next;
+		      
+		      //cout << elementCount << endl;
 		    }
 		}
 	    }
 	  elementCount++;
 	  currentElement = currentElement->next;
+	  innerElement = elementHead;
 	}
     }
 }
