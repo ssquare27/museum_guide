@@ -16,6 +16,7 @@ struct gstElementList
   GstElement *element;
   std::string elementName;
   std::string elementType;
+  int elementOrder;
   gstElementList *next;
 };
 
