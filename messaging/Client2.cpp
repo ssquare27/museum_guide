@@ -1,6 +1,6 @@
 /*********************************************** -HTIGCP- ******************************************************
 *
-*Author: Mark Randall & Sami Giacaman.
+*Author: Sami Giacaman & Mark Randall.
 *Date Created: 12/11/2013.
 *Date Amended: 26/11/2013
 *Purpose: Solution for Hyper Text iGep Control Protocol
@@ -9,12 +9,9 @@
 *
 *Program Description: 
 *
-*How to Compile: g++ -I -Wall -o server Server.c -lpthread
-*		 g++ -I -Wall -o client Client.c
-*OR
+*How to Compile: g++ -I -Wall -o server Server.cpp -lpthread
+*		 g++ -I -Wall -o client Client.cpp
 *
-*How to Compile: gcc -I -Wall -o server Server.c -lpthread
-*		 gcc -I -Wall -o client Client.c
 *And to Run it: ./server <Port Number>
 *		./client 
 *OR
@@ -434,7 +431,7 @@ int main(int argc, char *argv[])
 
     bzero(buffer,MAXPATH); /* Clear. */
  
-    sprintf(message,"POST HTTP/1.1\r\n\r\n#5412");
+    sprintf(message,"POST HTTP/1.1\r\n\r\n#5444");
     sprintf(buffer,"%s",message);
 
     printf("\n-----------------------------------------------");
@@ -464,24 +461,20 @@ int main(int argc, char *argv[])
     printf("\n-----------------------------------------------\n\n");
 
     string testMessage(buffer);
-    cout << "What is testMessage:" << testMessage << endl;
     StatusMessage statusMsg;
     statusMsg = parseResponseMsg(testMessage);
-    cout << "Message parsed, protocol is: \"" << statusMsg.getProtocol() <<
-		"\"" << endl;
-    cout << "Code is: \"" << statusMsg.getCode() << "\"" << endl;
-    cout << "Title is: \"" << statusMsg.getTitle() << "\"" << endl;
-    cout << "Message is: \"" << statusMsg.getMessage() << "\"" << endl;
     startStreaming = checkMessages(statusMsg);
 	
     if(startStreaming)
     {
-	//start gstreamer
+	//Start gstreamer Steve + Nathan + Ben
 	cout << "Starting GStreamer..." << endl;
     }
     else
     {
-	//attempt to resend request message
+	/*Sleep for 5 Seconds, Check if the socket is still connected
+	 *If not, recreate socket and then attempt a response resend.
+	 *To be implemented. Not for prototype.*/
     }
     /* Close Socket. */
     close(socketfd);

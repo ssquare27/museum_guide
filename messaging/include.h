@@ -9,12 +9,9 @@
 *
 *Program Description: 
 *
-*How to Compile: g++ -I -Wall -o server Server.c -lpthread
-*		 g++ -I -Wall -o client Client.c
-*OR
+*How to Compile: g++ -I -Wall -o server Server.cpp -lpthread
+*		 g++ -I -Wall -o client Client.cpp
 *
-*How to Compile: gcc -I -Wall -o server Server.c -lpthread
-*		 gcc -I -Wall -o client Client.c
 *And to Run it: ./server <Port Number>
 *		./client 
 *OR
@@ -68,6 +65,7 @@ T_vars avThreads[100];
 /* ********************************* */
 /* ******************************************************************************************************* */
 /* ******************************************************************************************************* */
-static void *readmessage(void *buptr);	                                       /* Server Parsing Function. */
+static void *readmessage(void *buptr);	                                       /* Server Read Function. */
+static void *writemessage(void *buptr ,char *retbuffer);		       /* Server Write Function. */
 /* ******************************************************************************************************* */
 /* ******************************************************************************************************* */

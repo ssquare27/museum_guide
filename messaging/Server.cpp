@@ -1,6 +1,6 @@
 /*********************************************** -HTIGCP- ******************************************************
 *
-*Author: Mark Randall & Sami Giacaman.
+*Author: Sami Giacaman & Mark Randall.
 *Date Created: 12/11/2013.
 *Date Amended: 26/11/2013
 *Purpose: Solution for Hyper Text iGep Control Protocol
@@ -9,12 +9,9 @@
 *
 *Program Description: 
 *
-*How to Compile: g++ -I -Wall -o server Server.c -lpthread
-*		 g++ -I -Wall -o client Client.c
-*OR
+*How to Compile: g++ -I -Wall -o server Server.cpp -lpthread
+*		 g++ -I -Wall -o client Client.cpp
 *
-*How to Compile: gcc -I -Wall -o server Server.c -lpthread
-*		 gcc -I -Wall -o client Client.c
 *And to Run it: ./server <Port Number>
 *		./client 
 *OR
@@ -518,7 +515,7 @@ int main(int argc, char *argv[])
             {
 	    	perror("Error: Thread Creation");
 		exit(0);
-	    }
+	    }	
 	}
     }
 }
@@ -527,8 +524,8 @@ int main(int argc, char *argv[])
 *
 *Function Name: static void *readmessage(void *buptr);
 *Purpose: This Function Reads The Client Request.
-*Take Action According to Request.
-*Date Created: 12/11/2013. Sami Giacaman
+*then sends it to parsing, and then to socket write.
+*Date Created: 26/11/2013. Sami Giacaman
 *
 /* ************************************************************** */
 static void *readmessage(void *buptr) 
@@ -552,34 +549,44 @@ static void *readmessage(void *buptr)
     printf("\n-----------------------------------------------");
     printf("\n%s",buffer);
     printf("\n-----------------------------------------------\n\n");
-    
+    /* Parsing */
     parsedMsg = parseRequestMsg(buffer);
     statusMsg = parsedMsg.getStatusObject();
     if(statusMsg.getCode() != 0)
     {
 	returnMsg = createReturnMessage(statusMsg);
-	char *retbuffer=new char[returnMsg.size()+1];
-	retbuffer[returnMsg.size()]=0;
-	memcpy(retbuffer,returnMsg.c_str(),returnMsg.size());
-	if (write((int)ins->socket, retbuffer, strlen((char*)retbuffer)) <= 0) 
-    	{
-        	perror("Error: Writing to Socket");
-        	exit(0);
-    	}
-
-    	/* Close Socket. */
-    	shutdown((int)ins->socket, 1);
-    	close((int)ins->socket);
-    	ins->busy = BAD;
     }
-
-    cout << "Message parsed, command is: \"" << parsedMsg.getCommand() <<
-    "\"" << endl;
-    cout << "Protocol is: \"" << parsedMsg.getProtocol() << "\"" << endl;
-    cout << "Code is: \"" << parsedMsg.getCode() << "\"" << endl;
     statusMsg = checkMessages(parsedMsg);
     returnMsg = createReturnMessage(statusMsg);
-    cout << "Response is: \"" << returnMsg << "\"" << endl;
+    char *retbuffer=new char[returnMsg.size()+1];
+    retbuffer[returnMsg.size()]=0;
+    memcpy(retbuffer,returnMsg.c_str(),returnMsg.size());
+    /* Writing */
+    writemessage(buptr, retbuffer);  
+}
+/* ************************************************************** */
+/* **********************Write Fucntion************************** *
+*
+*Function Name: static void *writemessage(void *buptr ,char *retbuffer);
+*Purpose: This Function Writes to Sockets.
+*Date Created: 26/11/2013. Sami Giacaman
+*
+/* ************************************************************** */
+static void *writemessage(void *buptr ,char *retbuffer)
+{
+    T_vars *ins;
+    ins = (T_vars *) buptr;
+
+    if (write((int)ins->socket, retbuffer, strlen((char*)retbuffer)) <= 0) 
+    {
+        perror("Error: Writing to Socket");
+        exit(0);
+    }
+
+    /* Close Socket. */
+    shutdown((int)ins->socket, 1);
+    close((int)ins->socket);
+    ins->busy = BAD;
 }
 /* ************************************************************** */
 /* ************************************************************** */
