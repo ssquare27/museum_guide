@@ -555,6 +555,14 @@ static void *readmessage(void *buptr)
     if(statusMsg.getCode() != 0)
     {
 	returnMsg = createReturnMessage(statusMsg);
+	/*** Start: Added response functionality to error check. (Mark - 27th Nov 2013) ***/
+	char *retbuffer=new char[returnMsg.size()+1];
+    retbuffer[returnMsg.size()]=0;
+    memcpy(retbuffer,returnMsg.c_str(),returnMsg.size());
+    /* Writing */
+    writemessage(buptr, retbuffer); 
+	return 0;
+	/*** End ***/
     }
     statusMsg = checkMessages(parsedMsg);
     returnMsg = createReturnMessage(statusMsg);
