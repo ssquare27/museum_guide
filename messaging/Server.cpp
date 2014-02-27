@@ -211,33 +211,33 @@ ParsedMessage parseRequestMsg(string message)
 	statMsg.setProtocol("HTTP/1.1");
 	
 	int i = 0;
-	int foundCRLF = 0,prevCRLFPos = 0;
+	int foundEmpty = 0,prevEmptyPos = 0;
 	int foundSpace = 0,prevSpacePos = 0;
 	int converted;
 	string seperateLines[2];
 
-	for(i=message.find("\r\n",0); i!=string::npos; i=message.find("\r\n",i))
+	for(i=message.find("\r\n\r\n",0); i!=string::npos; i=message.find("\r\n\r\n",i))
 	{
-		if(foundSpace < 2)
+		if(foundEmpty < 1)
 		{
-			seperateLines[foundCRLF] =
-			  splitMessage(message,prevCRLFPos,(i-prevCRLFPos));
+			seperateLines[foundEmpty] =
+			  splitMessage(message,prevEmptyPos,(i-prevEmptyPos));
 		}
-		else if(foundSpace >= 2)
+		else if(foundEmpty >= 1)
 		{
-			statMsg.setMessage("Request had too many CRLF's");
+			statMsg.setMessage("Request had too many empty lines");
 			cout << statMsg.getMessage() << endl;
 			parsedMessage.setStatusObject(statMsg);
 			return parsedMessage;
 		}
 
 		i = i + 2;
-		foundCRLF++;
-		prevCRLFPos = i;
+		foundEmpty++;
+		prevEmptyPos = i;
 	}
-	if(foundCRLF == 0)
+	if(foundEmpty == 0)
 	{
-		statMsg.setMessage("Request had no CRLF's");
+		statMsg.setMessage("Request had no empty lines");
 		cout << statMsg.getMessage() << endl;
 		parsedMessage.setStatusObject(statMsg);
 		return parsedMessage;
@@ -290,9 +290,9 @@ ParsedMessage parseRequestMsg(string message)
 	parsedMessage.setProtocol(splitMessage(
 	  seperateLines[0],prevSpacePos,seperateLines[0].length()));
 	
-	statMsg.setCode(200);
-	statMsg.setTitle("OK");
-	statMsg.setMessage("Starting Streaming...");
+	statMsg.setCode(0);
+	statMsg.setTitle("");
+	statMsg.setMessage("");
 	parsedMessage.setStatusObject(statMsg);
 
 	return parsedMessage;
@@ -326,6 +326,8 @@ StatusMessage checkMessages(ParsedMessage aParsed)
 	string command = aParsed.getCommand();
 	string protocol = aParsed.getProtocol();
 	int code = aParsed.getCode();
+	int gstreamer_pid;
+	int num;
 
 	//check protocol
 	if(protocol != "HTTP/1.1")
@@ -335,7 +337,7 @@ StatusMessage checkMessages(ParsedMessage aParsed)
 		statusMsg.setMessage("Invalid protocol");
 		return statusMsg;
 	}
-
+	
 	//check that code is between 0 - 9,000, i.e cant have over 4 digits
 	if((code < 0) || (code > 9999))
 	{
@@ -349,14 +351,30 @@ StatusMessage checkMessages(ParsedMessage aParsed)
 	if(command == "POST")
 	{
 		//send SQL script, to find data for the code, on the purchased codes table
+		statusMsg.setCode(200);
+		statusMsg.setTitle("OK");
+		statusMsg.setMessage("Starting Streaming...");
+			gstreamer_pid = fork();  
+		if(gstreamer_pid == 0){       /*child*/
+	   system("gst-launch-0.10 -v filesrc location=/home/ssquare/Desktop/01-01-UnderControl.mp3 ! mad ! audioconvert ! lame bitrate=320 ! udpsink port=80 host=192.168.0.30");
+			}else if(gstreamer_pid > 0){  /*parent*/
+		 
+		}
+		
 	}
 	else if(command == "GET")
 	{
 		//send SQL script, to find the audio file via the code, on the playback table
+	  	statusMsg.setCode(500);
+		statusMsg.setTitle("INTERNAL SERVER ERROR");
+		statusMsg.setMessage("Authentication service not available");
 	}
 	else if(command == "DELETE")
 	{
 		//send SQL script, to remove authorised code, from the purchased codes table
+		statusMsg.setCode(500);
+		statusMsg.setTitle("INTERNAL SERVER ERROR");
+		statusMsg.setMessage("Authentication service not available");
 	}
 	else
 	{
@@ -552,15 +570,16 @@ static void *readmessage(void *buptr)
     /* Parsing */
     parsedMsg = parseRequestMsg(buffer);
     statusMsg = parsedMsg.getStatusObject();
+    
     if(statusMsg.getCode() != 0)
     {
 	returnMsg = createReturnMessage(statusMsg);
 	/*** Start: Added response functionality to error check. (Mark - 27th Nov 2013) ***/
 	char *retbuffer=new char[returnMsg.size()+1];
-    retbuffer[returnMsg.size()]=0;
-    memcpy(retbuffer,returnMsg.c_str(),returnMsg.size());
-    /* Writing */
-    writemessage(buptr, retbuffer); 
+	retbuffer[returnMsg.size()]=0;
+	memcpy(retbuffer,returnMsg.c_str(),returnMsg.size());
+	/* Writing */
+	writemessage(buptr, retbuffer); 
 	return 0;
 	/*** End ***/
     }
@@ -597,4 +616,17 @@ static void *writemessage(void *buptr ,char *retbuffer)
     ins->busy = BAD;
 }
 /* ************************************************************** */
+/* Simple gstreamer server call routine.
+int start_gstreamer(){
+  int gstreamer_pid;
+  int num;
+  gstreamer_pid = fork();
+  printf("%d", num);  
+  if(gstreamer_pid == 0){       /*child
+    system("gst-launch-0.10 -v filesrc location=/01-01-UnderControl.mp3 ! mad ! audioconvert ! lame bitrate=320 ! udpsink port=80 host=192.168.0.2");
+  }else if(gstreamer_pid > 0){  /*parent
+    num = 2;
+  }
+  printf("%d", num);
+}*/
 /* ************************************************************** */

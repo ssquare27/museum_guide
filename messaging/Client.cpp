@@ -413,8 +413,8 @@ int main(int argc, char *argv[])
     }
 
     /* *************** */
-       portnum = 9000;
-       ptrh = gethostbyname("localhost");
+       portnum = 8080;
+       ptrh = gethostbyname("192.168.0.8");
     /* *************** */
 
     bzero((char *) &saddr, sizeof(saddr)); /* Clear sockaddr Structure. */
@@ -430,8 +430,8 @@ int main(int argc, char *argv[])
     }
 
     bzero(buffer,MAXPATH); /* Clear. */
- 
-    sprintf(message,"POST HTTP/1.1\r\n\r\n#5412");
+
+    sprintf(message,"POST HTTP/1.1\r\n\r\n#4242");
     sprintf(buffer,"%s",message);
 
     printf("\n-----------------------------------------------");
@@ -469,6 +469,8 @@ int main(int argc, char *argv[])
     {
 	//Start gstreamer Steve + Nathan + Ben
 	cout << "Starting GStreamer..." << endl;
+	system("gst-launch-1.0 -v udpsrc port=80 ! queue2 use-buffering=TRUE low-percent=50 temp-template=/tmp/gstreamer-XXXXXX ! mad ! alsasink");
+	
     }
     else
     {
