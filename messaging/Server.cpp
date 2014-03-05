@@ -306,12 +306,12 @@ ParsedMessage parseRequestMsg(string message)
 	i=0;
 	for(i=seperateLines[0].find(" ",0); i!=string::npos; i=seperateLines[0].find(" ",i))
 	{
-		if(foundSpace == 0)
+		if(!foundSpace)
 		{
 			parsedMessage.setCommand(splitMessage(
 			  seperateLines[0],prevSpacePos,(i-prevSpacePos)));
 		}
-		else if(foundSpace >= 1)
+		else if(foundSpace)
 		{
 			statMsg.setMessage("Request contained too many \" \"'s");
 			cout << statMsg.getMessage() << endl;
@@ -320,10 +320,10 @@ ParsedMessage parseRequestMsg(string message)
 		}
 
 		i++;
-		foundSpace++;
+		foundSpace = true;
 		prevSpacePos = i;
 	}
-	if(foundSpace == 0)
+	if(!foundSpace)
 	{
 		statMsg.setMessage("Request contained no \" \"'s");
 		cout << statMsg.getMessage() << endl;
