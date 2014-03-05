@@ -211,31 +211,39 @@ ParsedMessage parseRequestMsg(string message)
 	statMsg.setProtocol("HTTP/1.1");
 	
 	int i = 0;
-	int foundEmpty = 0,prevEmptyPos = 0;
-	int foundSpace = 0,prevSpacePos = 0;
+
+	int prevEmptyPos = 0;
+	bool foundEmptyLine = false;
+
+	int prevCRLF = 0;
+	bool foundCRLF = false;
+
+	int prevSpacePos = 0;
+	bool foundSpace = false;
+
 	int converted;
 	string seperateLines[2];
 
 	for(i=message.find("\r\n\r\n",0); i!=string::npos; i=message.find("\r\n\r\n",i))
 	{
-		if(foundEmpty < 1)
+		if(!foundEmptyLine)
 		{
-			seperateLines[foundEmpty] =
+			seperateLines[1] =
 			  splitMessage(message,prevEmptyPos,(i-prevEmptyPos));
 		}
-		else if(foundEmpty >= 1)
+		else if(foundEmptyLine)
 		{
-			statMsg.setMessage("Request had too many empty lines");
+			statMsg.setMessage("Request has too many empty lines");
 			cout << statMsg.getMessage() << endl;
 			parsedMessage.setStatusObject(statMsg);
 			return parsedMessage;
 		}
 
 		i = i + 2;
-		foundEmpty++;
+		foundEmptyLine = true;
 		prevEmptyPos = i;
 	}
-	if(foundEmpty == 0)
+	if(!foundEmpty)
 	{
 		statMsg.setMessage("Request had no empty lines");
 		cout << statMsg.getMessage() << endl;
@@ -243,6 +251,40 @@ ParsedMessage parseRequestMsg(string message)
 		return parsedMessage;
 	}
 	
+	seperateLines[2] = 
+	  splitMessage(message,prevEmptyPos,message.length());
+
+	for(i=seperateLines[1].find("\r\n",0); i!=string::npos; i=seperateLines[1].find("\r\n",i))
+	{
+		if(!foundCRLF)
+		{
+			seperateLines[0] =
+			  splitMessage(seperateLines[1],prevCRLF,(i-prevCRLF));
+		}
+		else if(foundCRLF)
+		{
+			statMsg.setMessage("Request has too many new lines");
+			cout << statMsg.getMessage() << endl;
+			parsedMessage.setStatusObject(statMsg);
+			return parsedMessage;
+		}
+
+		i = i + 2;
+		foundCRLF = true;
+		prevCRLF = i;
+	}
+	if(!foundCRLF)
+	{
+		statMsg.setMessage("Request had no new lines");
+		cout << statMsg.getMessage() << endl;
+		parsedMessage.setStatusObject(statMsg);
+		return parsedMessage;
+	}
+
+	seperateLines[1] =
+	  splitMessage(seperateLines[1],prevCRLF,seperateLines[1]);
+
+/*
 	i=message.find("#",0);
 	if(i==string::npos)
 	{
@@ -259,6 +301,7 @@ ParsedMessage parseRequestMsg(string message)
 		return parsedMessage;
 	}
 	parsedMessage.setCode(converted);
+*/
 	
 	i=0;
 	for(i=seperateLines[0].find(" ",0); i!=string::npos; i=seperateLines[0].find(" ",i))
@@ -289,6 +332,42 @@ ParsedMessage parseRequestMsg(string message)
 	}
 	parsedMessage.setProtocol(splitMessage(
 	  seperateLines[0],prevSpacePos,seperateLines[0].length()));
+
+//Do the same as above, but for Host (IP), and MAC, but confirm with Sami the format of MAC address
+
+	regex findHash("(#)(.*)");
+	if(regex_match (seperateLines[2],findHash))
+	{
+		for(int j=1;seperateLines[2][j];j++)//does this point to x character in the string?
+		{
+			if(j>=5)
+			{
+				statMsg.setMessage("Request code is too long");
+				cout << statMsg.getMessage() << endl;
+				parsedMessage.setStatusObject(statMsg);
+				return parsedMessage;
+			}
+
+			if(!isdigit(seperateLines[2][j]))
+			{
+				statMsg.setMessage("Request code is not a number");
+				cout << statMsg.getMessage() << endl;
+				parsedMessage.setStatusObject(statMsg);
+				return parsedMessage;
+			}
+		}
+
+		//atoi might not work with string... if not, it does work with const char* and char[]
+		parsedMessage.setCode(atoi(splitMessage(
+		  seperateLines[2],1,seperateLines[2].length())));
+	}
+	else
+	{
+		statMsg.setMessage("Request contained no \"#\"");
+		cout << statMsg.getMessage() << endl;
+		parsedMessage.setStatusObject(statMsg);
+		return parsedMessage;
+	}
 	
 	statMsg.setCode(0);
 	statMsg.setTitle("");
