@@ -44,6 +44,7 @@
 #include <iostream>
 #include <sstream>
 #include <cstdlib>
+#include <regex>
 /* ********************************* */
 /* ********************************* */
 #define MAXPATH 4096 	/* Max Length. */
