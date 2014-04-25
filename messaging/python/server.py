@@ -12,14 +12,19 @@ mutex = threading.Semaphore()
 class ServerTCPReqHandler(SocketServer.BaseRequestHandler):
     #Handler code
     def handle(self):
+		#Recieve request
         message = self.request.recv(1024)
+		#debug
         print message
+		#Parse request
         response = message_parser(message)
         #response = "{}".format(message)
         print response
+		#send request.
         self.request.sendall(response)
         
-        
+#Doing some clever stuff mainly for SSL, best not to look at this as it 
+#is often not the reason for failure.        
 class SslTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer): 
     #Override class initialisation to include ssl certificate.
     def __init__(self, sslfile, server_address, RequestHandlerClass,
@@ -50,15 +55,17 @@ class SslTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
  
     def shutdown_request(self,request):
         request.shutdown()
-
+#Handles the database communication
 def sql_query(query):
+		#Database login details
         conn = MySQLdb.connect (host = "localhost",
         user = "<Database User>",
         passwd = "<user Password>",
         db = "<database>")
-    
+		#select cursor to enable database commands.
         cursor = conn.cursor()
         output = ""
+		#Select query
         if query.find("SELECT") >= 0:
             cursor.execute(query)
             rows = cursor.fetchall()
@@ -73,7 +80,7 @@ def sql_query(query):
             conn.commit()
             output = "OK"
         return output
-
+#Handle request from client.
 def message_parser(message):
     #Define output variable
     response = ""
@@ -93,12 +100,13 @@ def message_parser(message):
         
 
 if __name__ == "__main__":
-    
+    #Host and port
     HOST, PORT = "0.0.0.0", 25999
-
+	#Takes an optional argument for enabling SSL, .pem should be used.
+	#To enable plain text communication the first argument should be null.
     server = SslTCPServer("/server.pem",(HOST, PORT), ServerTCPReqHandler)
     ip, port = server.server_address
-
+	#Server start up and threading.
     server_thread = threading.Thread(target=server.serve_forever)
     
     server_thread.daemon = True
