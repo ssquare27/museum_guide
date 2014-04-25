@@ -53,9 +53,9 @@ class SslTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
 
 def sql_query(query):
         conn = MySQLdb.connect (host = "localhost",
-        user = "carer",
-        passwd = "G00gL3123",
-        db = "test")
+        user = "<Database User>",
+        passwd = "<user Password>",
+        db = "<database>")
     
         cursor = conn.cursor()
         output = ""
