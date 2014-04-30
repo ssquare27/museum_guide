@@ -230,14 +230,18 @@ StatusMessage parseResponseMsg(string message)
  * if the message back is a "OK" - true, or if it is	*
  * not what we want "INTERNAL SERVER ERROR" - false.	*
  ********************************************************/
-bool checkMessages(StatusMessage aStatus)
+StatusMessage checkMessages(StatusMessage aStatus)
 {
-	StatusMessage statusMsg;
-	bool messageFalse = false;
+	StatusMessage invalidResponse;
 	string title = aStatus.getTitle();
 	string protocol = aStatus.getProtocol();
 	int code = aStatus.getCode();
-	string message = aStatus.getMessage();
+	string message = aStatus.getMessage();	
+
+	invalidResponse.setTitle("INTERNAL SERVER ERROR");
+	invalidResponse.setProtocol("HTTP/1.1");
+	invalidResponse.setCode(500);
+	invalidResponse.setMessage("Server response was invalid format - Title incorrect");
 
 	//check protocol
 	if(protocol != "HTTP/1.1")
@@ -258,107 +262,98 @@ bool checkMessages(StatusMessage aStatus)
 			if(title != "OK")
 			{
 				//invalid status title
-				return messageFalse;
+				return invalidResponse;
 			}
 			//go to next state of FSM
-			return true;
+			return aStatus;
 		}
 		break;
 		
 		case 202:
 		{
-			/*
 		  	if(title != "ACCEPTED")
 			{
 				//invalid status title
-				return messageFalse;
+				return invalidResponse;
 			}
-			*/
 			//go to next state of FSM
-			return messageFalse;
+			return aStatus;
 		}
 		break;
 		
 		case 400:
 		{
-			/*
 		  	if(title != "BAD REQUEST")
 			{
 				//invalid status title
-				return messageFalse;
+				return invalidResponse;
 			}
-			*/
 			//go to next state of FSM
-			return messageFalse;
+			return aStatus;
 		}
 		break;
 		
 		case 402:
 		{
-			/*
 		  	if(title != "PAYMENT REQUIRED")
 			{
 				//invalid status title
-				return messageFalse;
-			}*/
+				return invalidResponse;
+			}
 			//go to next state of FSM
-			return messageFalse;
+			return aStatus;
 		}
 		break;
 		
 		case 403:
 		{
-			/*
 		  	if(title != "FORBIDDEN")
 			{
 				//invalid status title
-				return messageFalse;
+				return invalidResponse;
 			}
-			*/
 			//go to next state of FSM
-			return messageFalse;
+			return aStatus;
 		}
 		break;
 		
 		case 500:
 		{
-			/*
 		  	if(title != "INTERNAL SERVER ERROR")
 			{
 				//invalid status title
-				return messageFalse;
+				return invalidResponse;
 			}
-			*/
 			//go to next state of FSM
-			return messageFalse;
+			return aStatus;
 		}
 		break;
 		
 		case 503:
 		{
-			/*
 		  	if(title != "SERVICE UNAVAILABLE")
 			{
 				//invalid status title
-				return messageFalse;
-			}*/
+				return invalidResponse;
+			}
 			//go to next state of FSM
-			return messageFalse;
+			return aStatus;
 		}
 		break;
 		
 		default:
 		{
 			//invalid status code
-			return messageFalse;
+			invalidResponse.setMessage("Server response was invalid format - Code Invalid");
+			return invalidResponse;
 		}
 		break;
 	}
 
-	return messageFalse;
+	return invalidResponse;
 }
 
-/* **********************Main Fucntion*************************** *
+/* **********************Main Function*************************** *
 *
 *Function Name: int main(int argc, char *argv[])
 *Purpose: This Function Starts and Initialize the Socket of Client.
@@ -370,13 +365,14 @@ bool checkMessages(StatusMessage aStatus)
 int main(int argc, char *argv[])
 {
 
-    int numchar, portnum, socketfd, x = 0;
+    int numchar, portnum, socketfd, x = 0, fd, fdm;
     char buffer[MAXPATH], message[200];
     char command[MAXPATH+1];
     int statusCode = 0;
-    bool startStreaming = false;
+    StatusMessage responseMsg;
     string returnMsg;
-
+    struct ifreq ifr;
+    struct ifreq macAdd;
     struct sockaddr_in saddr; /* Struct to hold server's address. */
     struct hostent *ptrh;     /* Pointer to a host table entry. */
 
@@ -413,8 +409,8 @@ int main(int argc, char *argv[])
     }
 
     /* *************** */
-       portnum = 8080;
-       ptrh = gethostbyname("192.168.0.8");
+       portnum = 9000;
+       ptrh = gethostbyname("localhost");
     /* *************** */
 
     bzero((char *) &saddr, sizeof(saddr)); /* Clear sockaddr Structure. */
@@ -428,12 +424,32 @@ int main(int argc, char *argv[])
         perror("Error");
         exit(0);
     }
+    bzero(buffer,MAXPATH); /* Clear. */   
+    /* Get IP Address */
+    /******************/
+    fd = socket(AF_INET, SOCK_DGRAM, 0);
+    ifr.ifr_addr.sa_family = AF_INET;
+    snprintf(ifr.ifr_name, IFNAMSIZ, "eth0");
+    ioctl(fd, SIOCGIFADDR, &ifr);
+    /******************/
+    /******************/
+    /* Get MAC Address */
+    /*******************/
+    fdm =socket(PF_INET,SOCK_DGRAM, 0);
+    memset(&macAdd, 0x00, sizeof(macAdd));
+    strcpy(macAdd.ifr_name, "eth0");
+    ioctl(fdm, SIOCGIFHWADDR, &macAdd);
+    close(fdm);
+    ioctl(fd, SIOCGIFHWADDR, &macAdd);
 
-    bzero(buffer,MAXPATH); /* Clear. */
+//Wait for keypad, and use this value
 
-    sprintf(message,"POST HTTP/1.1\r\n\r\n#4242");
+    sprintf(message,"POST HTTP/1.1\r\n\r\nHost: %.2X:%.2X:%.2X:%.2X:%.2X:%.2X\r\n#4242",(unsigned char)macAdd.ifr_hwaddr.sa_data[0],(unsigned char)macAdd.ifr_hwaddr.sa_data[1],(unsigned char)macAdd.ifr_hwaddr.sa_data[2],(unsigned char)macAdd.ifr_hwaddr.sa_data[3],(unsigned char)macAdd.ifr_hwaddr.sa_data[4],(unsigned char)macAdd.ifr_hwaddr.sa_data[5]);
+    close(fd);
+/*,inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr)*/
+    /*******************/
+    /*******************/
     sprintf(buffer,"%s",message);
-
     printf("\n-----------------------------------------------");
     printf("\nRequest Sent:");
     printf("\n-----------------------------------------------");
@@ -463,20 +479,32 @@ int main(int argc, char *argv[])
     string testMessage(buffer);
     StatusMessage statusMsg;
     statusMsg = parseResponseMsg(testMessage);
-    startStreaming = checkMessages(statusMsg);
+    responseMsg = checkMessages(statusMsg);
 	
-    if(startStreaming)
+    if(responseMsg.getCode() == 200)
     {
 	//Start gstreamer Steve + Nathan + Ben
-	cout << "Starting GStreamer..." << endl;
-	system("gst-launch-1.0 -v udpsrc port=80 ! queue2 use-buffering=TRUE low-percent=50 temp-template=/tmp/gstreamer-XXXXXX ! mad ! alsasink");
+	//cout << "Starting GStreamer..." << endl;
+	//system("gst-launch-1.0 -v udpsrc port=80 ! queue2 use-buffering=TRUE low-percent=50 temp-template=/tmp/gstreamer-XXXXXX ! mad ! alsasink");
 	
+	//dont start gstreamer. Instead we need to send a get message.
     }
-    else
+    else if(responseMsg.getCode() == 402)
+    {
+	//display message stating code has not been purchased
+    }
+    else if(responseMsg.getCode() == 403)
+    {
+	//display message stating code is currently being used/is unavailable
+    }
+    else if(responseMsg.getCode() == 500)
     {
 	/*Sleep for 5 Seconds, Check if the socket is still connected
 	 *If not, recreate socket and then attempt a response resend.
 	 *To be implemented. Not for prototype.*/
+
+	// if we get 500 again, then serious server/client issue with messaging/
+	// sockets persist
     }
     /* Close Socket. */
     close(socketfd);
