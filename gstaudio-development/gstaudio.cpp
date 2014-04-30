@@ -1,8 +1,20 @@
-//#include "main.h"
+/*****************************************************************************
+ * File: gstaudio.cpp
+ * Author: Steve Square
+ * Created: 11th January 2014
+ * Updated: 30th April 2014
+ * Description
+ ****************************************************************************/
 #include "gstaudio.h"
 #include "stdio.h"
 using namespace std;
 
+/*****************************************************************************
+ * GstAudio::GstAudio
+ * Parameters:  void
+ * return: 		void
+ *Description:  Constructor that initialises linked list
+ ****************************************************************************/
 GstAudio::GstAudio(void)
 {
   elementHead = new(gstElementList);
@@ -13,27 +25,37 @@ GstAudio::GstAudio(void)
   elementHead->element = NULL;
 }
 
+/*****************************************************************************
+ * GstAudio::~GstAudio
+ * Parameters:  void
+ * return: 		void
+ *Description:  Destructor for the GstAudio class.
+ ****************************************************************************/
 GstAudio::~GstAudio(void)
 {
-  /*while (elementHead->elementName != "")
-    {
-      gstElementList temp;
-      //Remove all entrys up to the placeholder
-      temp = elementHead;
-      elementHead = elementHead->next;
-      delete temp;
-    }
-    delete elementHead;*/
-}
 
+}
+/*****************************************************************************
+ * GstAudio::printVersion
+ * Parameters:  void
+ * return: 		void
+ *Description:  Prints the current version of gstreamer
+ ****************************************************************************/
 void GstAudio::printVersion()
 {
   gst_version (&version.major, &version.minor, &version.micro, &version.nano);
   printf ("This program is linked against GStreamer %d.%d.%d %d\n",
 	  version.major, version.minor, version.micro, version.nano);
 }
+
 /*****************************************************************************
- *creates an GstElement and insertes this to the head linked list
+ * GstAudio::addElementList(string elementName, 
+ *							string elementType, int elementOrder)
+ * Parameters: 	string elementName, 
+ *				string elementType, 
+ *				int elementOrder
+ * return: 		void
+ *Description:  creates an GstElement and inserts this to the head linked list
  ****************************************************************************/
 void GstAudio::createElement(string elementName, string elementType, int elementOrder)
 {
@@ -44,12 +66,21 @@ void GstAudio::createElement(string elementName, string elementType, int element
   					elementType.c_str());
   addElementList(newElement, elementName, elementType, elementOrder);
 }
-
+/*****************************************************************************
+ * GstAudio::addElementList(GstElement *element, string elementName, 
+ *							string elementType, int elementOrder)
+ * Parameters: 	GstElement *element, 
+ *				string elementName, 
+ *				string elementType, 
+ *				int elementOrder
+ * return: void
+ * Description: Adds a Gstreamer element to the objects linked list.
+ ****************************************************************************/
 void GstAudio::addElementList(GstElement *element, string elementName, string elementType, int elementOrder)
 {
-  gstElementList *temp; //needed to hold information proir to copy.
+  //needed to hold information prior to copy.
+  gstElementList *temp; 
   temp = new(gstElementList);
-  //temp = (gstElementList*)malloc(sizeof(gstElementList));
   //assign data to the temp node in linked list
   temp->elementName = elementName;
   temp->elementType = elementType;
@@ -58,7 +89,7 @@ void GstAudio::addElementList(GstElement *element, string elementName, string el
   temp->next = NULL;
   
   temp->next = elementHead;
-  //printf("%d\n", &temp->element);
+
   //add this node to the linked list
   GstAudio::elementHead = temp;
   if (elementOrder > maxElements) 
@@ -67,7 +98,11 @@ void GstAudio::addElementList(GstElement *element, string elementName, string el
     }
 }
 /*****************************************************************************
- *Simple print function that prints each element currently created.
+ * GstAudio::printElementList()
+ * Parameters: void
+ * return: void
+ * Description: Simple print function that prints each element currently 
+ *				created.
  ****************************************************************************/
 void GstAudio::printElementList()
 {
@@ -112,42 +147,40 @@ GstElement *GstAudio::findE(string elementName)
     }
   return NULL;
 }
-/*
- * play all auto
- */
+
+/*****************************************************************************
+ * GstAudio::playbackAuto
+ * Parameters: void
+ * return: void
+ * Description: Links all playback objects in the linked list and starts 
+ *   			playback
+ ****************************************************************************/
 void GstAudio::playbackAuto()
 {
   GstElement *pipeline = gst_pipeline_new("audio-player");
   GMainLoop *loop = g_main_loop_new (NULL, FALSE);;
   GstElement **elementArray = new(GstElement*[maxElements]);
   
-  
-  // gst_bin_add_many (GST_BIN(pipeline), findE("audiotestsrc"), findE("audioconvert"),
-  //		    findE("audioresample"), findE("alsasink"), NULL);
   addBin(pipeline, elementArray);
-  //gst_element_link (findE("audiotestsrc"), findE("alsasink"));
-  //gst_element_link_many (findE("audioconvert"), findE("audioresample"), NULL);
-  //GstElement *pointer = findE("audiotestsrc");
-  //printf("%d %d\n", &elementArray[1], &pointer);
-  //exit(0);
+  
   gst_element_set_state (pipeline, GST_STATE_PLAYING);
 
   g_print ("Running...\n");
   g_main_loop_run (loop);
 }
 
-void GstAudio::linkAllElements() 
-{
-  
-}
-
+/*****************************************************************************
+ * GstAudio::addBin(GstElement *pipeline, GstElement **elementArray)
+ * Parameters: 	GstElement *pipeline, 
+ * 				GstElement **elementArray
+ * return: void
+ * Description: Adds a specialist playback bin, usually a pipeline
+ ****************************************************************************/
 void GstAudio::addBin(GstElement *pipeline, GstElement **elementArray) 
 {
-  //GstElement **elementArray = new(GstElement*[maxElements]);
   int i;
-  //GstElement *pipeline  = gst_pipeline_new("audio-player");
   elementArray[0] = pipeline;
-  //gst_bin_add_many (GST_BIN
+  
   addToArray(elementArray);
   for(i = 1; i <= maxElements; i++) 
     {
@@ -159,6 +192,12 @@ void GstAudio::addBin(GstElement *pipeline, GstElement **elementArray)
     }
 }
 
+/*****************************************************************************
+ * GstAudio::addBin(GstElement **eArray)
+ * Parameters: 	GstElement *eArray
+ * return: void
+ * Description: 
+ ****************************************************************************/
 void GstAudio::addToArray(GstElement **eArray)
 {
   gstElementList *currentElement;
@@ -173,33 +212,27 @@ void GstAudio::addToArray(GstElement **eArray)
   
   while (currentElement->elementName != "")
     {
-      //cout << "out\n";
-      if (currentElement != NULL)
-	{
-	  //cout << "out3\n";
-	  while (innerElement->elementName != "")
-	    {
-	      //cout << "In2\n";
-	      if (innerElement != NULL)
+		if (currentElement != NULL)
 		{
-		  //cout << "In\n";
-		  if (elementCount == innerElement->elementOrder)
-		    {
-		      //printf("%d\n", &innerElement->element);
-		      eArray[elementCount] = innerElement->element;
-		      break;
-		    }
-		  else
-		    {
-		      innerElement = innerElement->next;
+			while (innerElement->elementName != "")
+			{
+				if (innerElement != NULL)
+				{	
+					if (elementCount == innerElement->elementOrder)
+					{
+						eArray[elementCount] = innerElement->element;
+						break;
+					}
+					else
+					{
+						innerElement = innerElement->next;
 		      
-		      //cout << elementCount << endl;
-		    }
+					}
+				}
+			}
+		elementCount++;
+		currentElement = currentElement->next;
+		innerElement = elementHead;
 		}
-	    }
-	  elementCount++;
-	  currentElement = currentElement->next;
-	  innerElement = elementHead;
-	}
     }
 }
