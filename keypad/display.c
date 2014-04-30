@@ -8,7 +8,7 @@
  * 1. Embedded Systems Development
  * 2. Designing and Writing Device Drivers
  *
- * Authors: Nathan Toft (10018903), Thomas West
+ * Authors: Nathan Toft (10018903), Ben Holden, Thomas West
  * and Gregory Masters
  */
 #include <errno.h>
@@ -107,6 +107,7 @@ int main()
   char *portname = "/dev/ttyACM0";
   int i;
   enum KeypadButton pincode[3];
+  enum KeypadButton button;
   int count=0;
   int pressed = 0;
   int x;
@@ -155,7 +156,7 @@ int main()
 	  // something was pressed
 	  row = 0;
 	  col = 0;
-	  enum KeypadButton button = KEY_1;			
+	  button = KEY_1;			
 	  row = getRowNumber(&buf[4]);
 	  for (j=1; j<5; j++)
 	    {
@@ -186,6 +187,7 @@ int main()
   return 0;
 }
 
+/*Selects which column to read on the keypad*/
 void selectCol(int col)
 {
   char buf [100];
