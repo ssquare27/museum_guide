@@ -80,11 +80,14 @@ def sql_query(query):
             conn.commit()
             output = "OK"
         return output
+
 #Handle request from client.
 def message_parser(message):
     #Define output variable
     response = ""
-    if message == "QUERYALL":
+    if message.find("POST"):
+        lines = message.split('\n')
+        response = "{}".decode_request(message)
         response = "{}".format(sql_query("SELECT * FROM tag"))
     elif message.find("GET TAGS NAME") >= 0:
         response = "{}".format(sql_query("SELECT name FROM tag"))
@@ -97,13 +100,34 @@ def message_parser(message):
         response = "404 ERROR"
     return response
     
+def decode_request(message):
+    lines = message.split('\n')
+    if lines[1] != "\r\n":
+        return "HTTP/1.1 400 BAD REQUEST\r\n\r\n Invalid Request"
+    
+    if lines[2].find("Host:") >= 0:
+        mac = lines[2].replace("Host: ", "")    
+        mac = mac.replace("\r\n", "")
+        
+        auth_code = lines[3].replace("\#", "")
+        auth_code = lines[3].replace("\r\n", "")
+        
+        sql_response = sql_query("SELECT valid FROM igep WHERE authCode=\""+auth_code+"\"")
+        if sql_response != "Y":
+            return "HTTP/1.1 403 FORBIDDEN \r\n\r\n Blah"
+        else:
+            sql_response = sql_query("UPDATE igep SET ip=\""+mac+"\" WHERE authCode=\""+auth_code+"\"")
+            return "HTTP/1.1 200 OK \r\n\r\n yay"
+    elif:
+        
+    
         
 
 if __name__ == "__main__":
     #Host and port
     HOST, PORT = "0.0.0.0", 25999
-	#Takes an optional argument for enabling SSL, .pem should be used.
-	#To enable plain text communication the first argument should be null.
+    #Takes an optional argument for enabling SSL, .pem should be used.
+    #To enable plain text communication the first argument should be null.
     server = SslTCPServer("/server.pem",(HOST, PORT), ServerTCPReqHandler)
     ip, port = server.server_address
 	#Server start up and threading.
