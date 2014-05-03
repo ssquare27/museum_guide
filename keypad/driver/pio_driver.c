@@ -20,6 +20,12 @@ Nathan
 #define BULK_EP_2_IN 0x82
 #define BULK_EP_1_OUT 0x01
 
+#define PIO_CTRL_BUFFER_SIZE 8
+#define PIO_CTRL_REQUEST_TYPE      0x21
+#define PIO_CTRL_REQUEST           0x09
+#define PIO_CTRL_VALUE             0x0        
+#define PIO_CTRL_INDEX             0x0
+#define PIO_CTRL_COMMAND_PREFIX    0x02
 struct pio_driver
 {
   struct usb_device *udev;
@@ -55,6 +61,14 @@ static struct usb_driver pio_driver =
     .name = "pio_driver",
     .id_table = pio_table,
   };
+
+static void pio_ctrl_callback(struct urb *urb)
+{
+  //pr_debug("does ctrl_callback appear?\n");
+        struct pio_driver *dev = urb->context;
+        pr_debug("pio_ctrl_callback\n");
+        dev->correction_required = 0;        /* TODO: do we need race protection? */
+}
 
 static int pio_open(struct inode *inodep, struct file *filp)
 {
@@ -189,6 +203,56 @@ static int pio_probe(struct usb_interface *interface, const struct usb_device_id
   //THIS IS DANGEROUS YOU WILL LOCK UP YOUR KERNEL
   // endpoint_size = le16_to_cpu(dev->int_in_endpoint->wMaxPacketSize);
   // pr_debug("Endpoint size is %d\n",endpoint_size);
+
+  dev->ctrl_buffer = kzalloc(PIO_CTRL_BUFFER_SIZE, GFP_KERNEL);
+  if(!dev->ctrl_buffer)
+    {
+      pr_debug("Oh bugger the butter, ctrl_buffer failed to allocate\n");
+      retval = -ENOMEM;
+      return retval;
+    }
+
+  dev->ctrl_dr = kmalloc(sizeof(struct usb_ctrlrequest), GFP_KERNEL);
+  if(!dev->ctrl_dr)
+    {
+      pr_debug("usb_ctrlrequest doesn't wanna work today goodbye\n");
+      retval = -ENOMEM;
+      return retval;
+    }
+
+  pr_debug("Does it get this far?\n");
+
+  dev->ctrl_dr->bRequestType = PIO_CTRL_REQUEST_TYPE;
+   pr_debug("REQUESTTYPEDoes it get this far?\n");
+  dev->ctrl_dr->bRequest = PIO_CTRL_REQUEST;
+   pr_debug("REQUESTDoes it get this far?\n");
+  dev->ctrl_dr->wValue = cpu_to_le16(PIO_CTRL_VALUE);
+   pr_debug("VALUEDoes it get this far?\n");
+  dev->ctrl_dr->wIndex = cpu_to_le16(PIO_CTRL_INDEX);
+   pr_debug("INDEXDoes it get this far?\n");
+  dev->ctrl_dr->wLength = cpu_to_le16(PIO_CTRL_BUFFER_SIZE);
+   pr_debug("LENGTHDoes it get this far?\n");
+
+  usb_fill_control_urb(dev->int_in_urb, dev->udev,
+		       usb_sndctrlpipe(dev->udev, 0),
+		       (unsigned char *)dev->ctrl_dr,
+		       dev->ctrl_buffer,
+		       PIO_CTRL_BUFFER_SIZE,
+		       pio_ctrl_callback,
+		       dev);
+   pr_debug("FILLCONTROLURBDoes it get this far?\n");
+	
+
+   if(!usb_string(udev,udev->descriptor.iSerialNumber, dev->serial_number,
+		  sizeof(dev->serial_number)))
+     {
+       pr_debug("Could not retrieve serial number\n");
+       return retval;
+     }
+
+   usb_set_intfdata(interface, dev);
+
+   dev->minor = interface->minor;
   /* Set up our class */
   class.name = PIO_NODE"%d";
   class.fops = &fops;
