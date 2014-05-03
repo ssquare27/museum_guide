@@ -134,6 +134,19 @@ static int pio_probe(struct usb_interface *interface, const struct usb_device_id
   iface_desc = interface->cur_altsetting;
 
   pr_debug("Number of endpoints found: %d\n",iface_desc->desc.bNumEndpoints);
+  
+  /*Set up interupt endpoints*/
+  for(i = 0; i < iface_desc->desc.bNumEndpoints; ++i)
+    {
+      endpoint = &iface_desc->endpoint[i].desc;
+      pr_debug("Found endpoint address %x\n",endpoint->bEndpointAddress);
+      if (((endpoint->bEndpointAddress & USB_ENDPOINT_DIR_MASK) == USB_DIR_IN)
+	  && ((endpoint->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK) ==
+	      USB_ENDPOINT_XFER_INT))
+	{
+	  dev->int_in_endpoint = endpoint;
+	}
+    }
   /* Set up our class */
   class.name = PIO_NODE"%d";
   class.fops = &fops;
