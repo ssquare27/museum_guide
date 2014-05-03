@@ -16,9 +16,9 @@ Nathan
 #define PIO_NODE "pio"
 #define PIO_STOP 0x1
 
-#define INTERUPT_EP_3_IN 0x83;
-#define BULK_EP_2_IN 0x82;
-#define BULK_EP_1_OUT 0x01;
+#define INTERUPT_EP_3_IN 0x83
+#define BULK_EP_2_IN 0x82
+#define BULK_EP_1_OUT 0x01
 
 struct pio_driver
 {
@@ -98,6 +98,17 @@ static struct file_operations fops =
     .write = pio_write,
   };
 
+static struct usb_endpoint_descriptor *set_endpoint(struct usb_endpoint_descriptor *endpoint, int endpoint_type, int endpoint_direction)
+{
+	if   (((endpoint->bEndpointAddress & USB_ENDPOINT_DIR_MASK) == endpoint_direction)
+	      && ((endpoint->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK) == endpoint_type))
+	{
+	  pr_debug("interupt endpoint found!\n");
+	  return endpoint;
+	}
+	return NULL;
+}
+
 static int pio_probe(struct usb_interface *interface, const struct usb_device_id *id)
 {
   struct usb_device *udev = interface_to_usbdev(interface);
@@ -140,13 +151,44 @@ static int pio_probe(struct usb_interface *interface, const struct usb_device_id
     {
       endpoint = &iface_desc->endpoint[i].desc;
       pr_debug("Found endpoint address %x\n",endpoint->bEndpointAddress);
-      if (((endpoint->bEndpointAddress & USB_ENDPOINT_DIR_MASK) == USB_DIR_IN)
-	  && ((endpoint->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK) ==
-	      USB_ENDPOINT_XFER_INT))
+      //DON'T USE THIS RUBBISH
+      /*if (((endpoint->bEndpointAddress & USB_ENDPOINT_DIR_MASK) == USB_DIR_IN)
+	&& ((endpoint->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK) ==
+	USB_ENDPOINT_XFER_INT))
 	{
-	  dev->int_in_endpoint = endpoint;
+	dev->int_in_endpoint = endpoint;
+	}*/
+      if(endpoint->bEndpointAddress == INTERUPT_EP_3_IN)
+	{
+	  pr_info("Setting interupt endpoint\n");
+	  dev->int_in_endpoint = set_endpoint(endpoint, USB_ENDPOINT_XFER_INT, USB_DIR_IN);
+	  endpoint_size = le16_to_cpu(dev->int_in_endpoint->wMaxPacketSize);
+	  pr_debug("Interupt endpoint size is %d\n",endpoint_size);
+	  //dev->int_in_buffer = initialise_urb_buffer(endpoint_size, &buffer_err);
+	  dev->int_in_buffer = kmalloc(endpoint_size,GFP_KERNEL);
+	  if(!dev->int_in_buffer)
+	    {
+	      pr_debug("Oh bugger it failed to kmalloc\n");
+	    }
+	  //dev->int_in_urb = initialise_urb(&urb_err);
+	  dev->int_in_urb = usb_alloc_urb(0, GFP_KERNEL);
+	  if(!dev->int_in_urb)
+	    {
+	      pr_debug("You fucking bastard, no urbs for you, throw the strawberries in the air!\n");
+	    }
 	}
     }
+
+  if(!dev->int_in_endpoint)
+    {
+      pr_debug("Could not find endpoint interupt but if interupt is already done then please ignore\n");
+      return retval;
+    }
+
+  /*Get endpoint size*/
+  //THIS IS DANGEROUS YOU WILL LOCK UP YOUR KERNEL
+  // endpoint_size = le16_to_cpu(dev->int_in_endpoint->wMaxPacketSize);
+  // pr_debug("Endpoint size is %d\n",endpoint_size);
   /* Set up our class */
   class.name = PIO_NODE"%d";
   class.fops = &fops;
