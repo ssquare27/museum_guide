@@ -38,6 +38,8 @@ class GstAudio
   void linkAllElements();
   void addBin(GstElement*, GstElement**);
   void addToArray(GstElement**);
+  int seek(GstElement*, gint64 nanoTime);
+  int setOptions(std::string elementName, std::string option, std::string argument);
 };
 
 #endif

@@ -236,3 +236,28 @@ void GstAudio::addToArray(GstElement **eArray)
 		}
     }
 }
+
+int GstAudio::seek(GstElement* pipeline, gint64 nanoTime)
+{
+  if(!gst_element_seek(pipeline, 1.0, GST_FORMAT_TIME, GST_SEEK_FLAG_FLUSH,
+                         GST_SEEK_TYPE_SET, nanoTime,
+                         GST_SEEK_TYPE_NONE, GST_CLOCK_TIME_NONE)) {
+    g_print ("Seek failed!\n");
+  }
+}
+
+int GstAudio::setOptions(string elementName, string option, string argument)
+{
+  GstElement* optionElement;
+  optionElement = findE(elementName);
+  if(optionElement != NULL)
+    {
+      cout << "adding file: " << argument << endl;
+      g_object_set(G_OBJECT(optionElement), option, argument, NULL);
+      return 0;
+    }
+  else
+    {
+      cout << "Failure to find " << elementName << endl;
+    }
+}
