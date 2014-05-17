@@ -33,6 +33,8 @@
 #include <pthread.h>
 #include <signal.h>
 #include <unistd.h>
+#include <sys/ioctl.h>
+#include <net/if.h>
 #include <string.h>
 #include <limits.h> 
 #include <stdlib.h>

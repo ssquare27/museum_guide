@@ -247,7 +247,7 @@ StatusMessage checkMessages(StatusMessage aStatus)
 	if(protocol != "HTTP/1.1")
 	{
 		//invalid status protocol
-		return messageFalse;
+		return invalidResponse;
 	}
 	
 	//check status code
@@ -402,14 +402,14 @@ int main(int argc, char *argv[])
         perror("Error: Socket Creation");
         exit(0);
     }
-    if (ptrh == NULL) 
+    /*if (ptrh == NULL) 
     {
         perror("Error: Invalid Host");
         exit(0);
-    }
+	}*/
 
     /* *************** */
-       portnum = 9000;
+       portnum = 25999;
        ptrh = gethostbyname("localhost");
     /* *************** */
 
@@ -444,7 +444,7 @@ int main(int argc, char *argv[])
 
 //Wait for keypad, and use this value
 
-    sprintf(message,"POST HTTP/1.1\r\n\r\nHost: %.2X:%.2X:%.2X:%.2X:%.2X:%.2X\r\n#4242",(unsigned char)macAdd.ifr_hwaddr.sa_data[0],(unsigned char)macAdd.ifr_hwaddr.sa_data[1],(unsigned char)macAdd.ifr_hwaddr.sa_data[2],(unsigned char)macAdd.ifr_hwaddr.sa_data[3],(unsigned char)macAdd.ifr_hwaddr.sa_data[4],(unsigned char)macAdd.ifr_hwaddr.sa_data[5]);
+    sprintf(message,"POST HTTP/1.1\r\n\r\nHost: %.2X:%.2X:%.2X:%.2X:%.2X:%.2X\r\n#1234",(unsigned char)macAdd.ifr_hwaddr.sa_data[0],(unsigned char)macAdd.ifr_hwaddr.sa_data[1],(unsigned char)macAdd.ifr_hwaddr.sa_data[2],(unsigned char)macAdd.ifr_hwaddr.sa_data[3],(unsigned char)macAdd.ifr_hwaddr.sa_data[4],(unsigned char)macAdd.ifr_hwaddr.sa_data[5]);
     close(fd);
 /*,inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr)*/
     /*******************/

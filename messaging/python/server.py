@@ -53,15 +53,16 @@ class SslTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
                 self.server_bind()
                 self.server_activate()
  
-    def shutdown_request(self,request):
-        request.shutdown()
+    #def shutdown_request(self,request):
+        #request.shutdown()
+
 #Handles the database communication
 def sql_query(query):
 		#Database login details
         conn = MySQLdb.connect (host = "localhost",
-        user = "<Database User>",
-        passwd = "<user Password>",
-        db = "<database>")
+        user = "igep",
+        passwd = "letmein",
+        db = "test")
 		#select cursor to enable database commands.
         cursor = conn.cursor()
         output = ""
@@ -85,40 +86,34 @@ def sql_query(query):
 def message_parser(message):
     #Define output variable
     response = ""
-    if message.find("POST"):
+    if message.find("POST") >= 0:
         lines = message.split('\n')
-        response = "{}".decode_request(message)
-        response = "{}".format(sql_query("SELECT * FROM tag"))
-    elif message.find("GET TAGS NAME") >= 0:
-        response = "{}".format(sql_query("SELECT name FROM tag"))
-    elif message.find("UPDATE LOCATION") >= 0:
-        message = message.replace("UPDATE LOCATION ", "")
-        opts = message.split(' ')
-        update_query = "UPDATE tag SET location=\""+opts[1]+"\" WHERE address=\""+opts[0] + "\""
-        response = "{}".format(sql_query(update_query))
+        #response = "{}".decode_request(message)
+        response = "{}".format(decode_request(message))
     else:
         response = "404 ERROR"
     return response
     
 def decode_request(message):
     lines = message.split('\n')
-    if lines[1] != "\r\n":
+    if lines[1] != "\r":
         return "HTTP/1.1 400 BAD REQUEST\r\n\r\n Invalid Request"
     
     if lines[2].find("Host:") >= 0:
         mac = lines[2].replace("Host: ", "")    
         mac = mac.replace("\r\n", "")
         
-        auth_code = lines[3].replace("\#", "")
-        auth_code = lines[3].replace("\r\n", "")
-        
-        sql_response = sql_query("SELECT valid FROM igep WHERE authCode=\""+auth_code+"\"")
-        if sql_response != "Y":
+        auth_code = lines[3]
+        auth_code = auth_code.replace("\r\n", "")
+        auth_code = auth_code.replace("#", "")
+        print auth_code
+        sql_response = sql_query("SELECT valid FROM IGEP WHERE authCode=\""+auth_code+"\"")
+        sql_response = sql_response.replace(",","")
+        if sql_response.find("Y") >= 0:
             return "HTTP/1.1 403 FORBIDDEN \r\n\r\n Blah"
         else:
-            sql_response = sql_query("UPDATE igep SET ip=\""+mac+"\" WHERE authCode=\""+auth_code+"\"")
+            sql_response = sql_query("UPDATE IGEP SET ip=\""+mac+"\" WHERE authCode=\""+auth_code+"\"")
             return "HTTP/1.1 200 OK \r\n\r\n yay"
-    elif:
         
     
         
@@ -128,7 +123,7 @@ if __name__ == "__main__":
     HOST, PORT = "0.0.0.0", 25999
     #Takes an optional argument for enabling SSL, .pem should be used.
     #To enable plain text communication the first argument should be null.
-    server = SslTCPServer("/server.pem",(HOST, PORT), ServerTCPReqHandler)
+    server = SslTCPServer(None,(HOST, PORT), ServerTCPReqHandler)
     ip, port = server.server_address
 	#Server start up and threading.
     server_thread = threading.Thread(target=server.serve_forever)
