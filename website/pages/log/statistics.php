@@ -148,7 +148,69 @@
 					// there were no results.
 					echo "<p><strong>Sorry, we don&#8217;t appear to have any customers using the system.</strong></p>";
 				}
-				?>					
+				?>				
+
+				<?php
+				
+				/*
+				 * Convert seconds to human readable text.
+				 *
+				 */
+				function secs_to_h($secs)
+				{
+					$units = array(
+							"week"   => 7*24*3600,
+							"day"    =>   24*3600,
+							"hour"   =>      3600,
+							"minute" =>        60,
+							"second" =>         1,
+					);
+
+				// specifically handle zero
+					if ( $secs == 0 ) return "0 seconds";
+
+					$s = "";
+
+					foreach ( $units as $name => $divisor ) {
+							if ( $quot = intval($secs / $divisor) ) {
+									$s .= "$quot $name";
+									$s .= (abs($quot) > 1 ? "s" : "") . ", ";
+									$secs -= $quot * $divisor;
+							}
+					}
+
+					return substr($s, 0, -2);
+				}
+
+				
+				// Define the avergage duration query .
+				$duration_query = "SELECT avg(timestampdiff(SECOND, timeIN, timeOUT)) as avgdiff from Bookings";
+				
+				// Run the query.
+				$duration_result = mysql_query($duration_query);
+
+				// Count the number of sermons returned
+				$duration_val = mysql_numrows($duration_result);
+				
+				// Check if there were any results
+				if ($duration_val > 0){
+				
+					$duration = htmlentities(mysql_result($duration_result,0,"avgdiff"), ENT_QUOTES);
+					
+					?>
+
+					<p>The average time spent in the museum is  <strong>
+					<?php
+					echo secs_to_h($duration);
+					?>
+					</strong>. </p>
+					<br/>				
+					
+					<?php
+				
+				} // there were results
+
+				?>
 				
 				
 			</div>	
