@@ -160,6 +160,15 @@ enum KeypadButton getButton(int row, int col);
 int buttonIsNumeric(enum KeypadButton button);
 
 /**
+ Check if the button is A-F
+ 
+ @param button: The button to check
+ @return : True/False, whether the button is a character or not
+*/
+
+int buttonIsAlpha(enum KeypadButton button);
+
+/**
  Gives an integer representation of a numeric button
  
  @param button: The numeric button
