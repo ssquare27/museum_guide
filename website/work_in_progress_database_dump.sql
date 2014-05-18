@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: May 18, 2014 at 05:21 PM
+-- Generation Time: May 19, 2014 at 12:08 AM
 -- Server version: 5.5.36-cll
 -- PHP Version: 5.4.23
 
@@ -119,6 +119,34 @@ INSERT INTO `Audio` (`trackID`, `audioCode`, `expertise`, `language`, `filePath`
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `Bookings`
+--
+
+CREATE TABLE IF NOT EXISTS `Bookings` (
+  `bookingID` int(11) NOT NULL AUTO_INCREMENT,
+  `customerID` int(11) NOT NULL,
+  `mac` varchar(255) NOT NULL,
+  `timeIN` datetime NOT NULL,
+  `timeOUT` datetime DEFAULT NULL,
+  PRIMARY KEY (`bookingID`),
+  KEY `customer` (`customerID`),
+  KEY `unit` (`mac`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=6 ;
+
+--
+-- Dumping data for table `Bookings`
+--
+
+INSERT INTO `Bookings` (`bookingID`, `customerID`, `mac`, `timeIN`, `timeOUT`) VALUES
+(1, 8, '00-B0-D0-86-BB-F7 ', '2014-05-18 18:12:03', '2014-05-18 23:53:02'),
+(2, 12, '00-1C-B3-09-85-15', '2014-05-18 18:12:47', '2014-05-18 19:01:00'),
+(3, 7, '00-B0-D0-86-BB-F7 ', '2014-05-18 18:33:57', NULL),
+(4, 7, '00-1C-B3-09-85-15', '2014-05-18 18:35:27', NULL),
+(5, 7, '00-B0-D0-86-BB-F7 ', '2014-05-18 18:36:12', NULL);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `Customers`
 --
 
@@ -198,6 +226,31 @@ INSERT INTO `Expertise` (`levelID`, `name`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `IGEP`
+--
+
+CREATE TABLE IF NOT EXISTS `IGEP` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `authCode` varchar(255) NOT NULL,
+  `ip` varchar(255) NOT NULL,
+  `mac` varchar(255) NOT NULL,
+  PRIMARY KEY (`ID`),
+  UNIQUE KEY `mac` (`mac`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=5 ;
+
+--
+-- Dumping data for table `IGEP`
+--
+
+INSERT INTO `IGEP` (`ID`, `authCode`, `ip`, `mac`) VALUES
+(1, '', '', '00-B0-D0-86-BB-F7 '),
+(2, '4242', '127.0.0.1', '00-1C-B3-09-85-15'),
+(3, '', '', 'EA-D0-A1-78-C7-3C'),
+(4, '', '', '00-37-6D-FE-29-82');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `Languages`
 --
 
@@ -251,6 +304,13 @@ INSERT INTO `Log` (`entryID`, `customerID`, `audioCode`, `dateTime`) VALUES
 ALTER TABLE `Audio`
   ADD CONSTRAINT `Audio_ibfk_2` FOREIGN KEY (`expertise`) REFERENCES `Expertise` (`levelID`),
   ADD CONSTRAINT `Audio_ibfk_1` FOREIGN KEY (`language`) REFERENCES `Languages` (`code`);
+
+--
+-- Constraints for table `Bookings`
+--
+ALTER TABLE `Bookings`
+  ADD CONSTRAINT `Bookings_ibfk_1` FOREIGN KEY (`customerID`) REFERENCES `Customers` (`customerID`),
+  ADD CONSTRAINT `Bookings_ibfk_2` FOREIGN KEY (`mac`) REFERENCES `IGEP` (`mac`);
 
 --
 -- Constraints for table `Customers`
