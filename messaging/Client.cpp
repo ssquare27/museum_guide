@@ -247,7 +247,8 @@ StatusMessage checkMessages(StatusMessage aStatus)
 	if(protocol != "HTTP/1.1")
 	{
 		//invalid status protocol
-		return messageFalse;
+		invalidResponse.setMessage("Server response was invalid format - Protocol incorrect");
+		return invalidResponse;
 	}
 	
 	//check status code
@@ -402,16 +403,24 @@ int main(int argc, char *argv[])
         perror("Error: Socket Creation");
         exit(0);
     }
+/*
     if (ptrh == NULL) 
     {
         perror("Error: Invalid Host");
         exit(0);
     }
+*/
 
     /* *************** */
-       portnum = 9000;
+       portnum = 7000;
        ptrh = gethostbyname("localhost");
     /* *************** */
+
+    if (ptrh == NULL) 
+    {
+        perror("Error: Invalid Host");
+        exit(0);
+    }
 
     bzero((char *) &saddr, sizeof(saddr)); /* Clear sockaddr Structure. */
     saddr.sin_family = AF_INET;            /* Set Family to Internet. */

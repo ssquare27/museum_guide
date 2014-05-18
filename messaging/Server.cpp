@@ -243,7 +243,7 @@ ParsedMessage parseRequestMsg(string message)
 		foundEmptyLine = true;
 		prevEmptyPos = i;
 	}
-	if(!foundEmpty)
+	if(!foundEmptyLine)
 	{
 		statMsg.setMessage("Request had no empty lines");
 		cout << statMsg.getMessage() << endl;
@@ -282,7 +282,7 @@ ParsedMessage parseRequestMsg(string message)
 	}
 
 	seperateLines[1] =
-	  splitMessage(seperateLines[1],prevCRLF,seperateLines[1]);
+	  splitMessage(seperateLines[1],prevCRLF,(i-prevCRLF));
 
 /*
 	i=message.find("#",0);
@@ -334,7 +334,7 @@ ParsedMessage parseRequestMsg(string message)
 	  seperateLines[0],prevSpacePos,seperateLines[0].length()));
 
 //Do the same as above, but for Host (IP), and MAC, but confirm with Sami the format of MAC address
-
+/*
 	regex findHash("(#)(.*)");
 	if(regex_match (seperateLines[2],findHash))
 	{
@@ -368,7 +368,7 @@ ParsedMessage parseRequestMsg(string message)
 		parsedMessage.setStatusObject(statMsg);
 		return parsedMessage;
 	}
-	
+*/	
 	statMsg.setCode(0);
 	statMsg.setTitle("");
 	statMsg.setMessage("");
@@ -647,6 +647,8 @@ static void *readmessage(void *buptr)
     printf("\n%s",buffer);
     printf("\n-----------------------------------------------\n\n");
     /* Parsing */
+
+/*
     parsedMsg = parseRequestMsg(buffer);
     statusMsg = parsedMsg.getStatusObject();
     
@@ -654,13 +656,16 @@ static void *readmessage(void *buptr)
     {
 	returnMsg = createReturnMessage(statusMsg);
 	/*** Start: Added response functionality to error check. (Mark - 27th Nov 2013) ***/
+/*
 	char *retbuffer=new char[returnMsg.size()+1];
 	retbuffer[returnMsg.size()]=0;
 	memcpy(retbuffer,returnMsg.c_str(),returnMsg.size());
 	/* Writing */
+/*
 	writemessage(buptr, retbuffer); 
 	return 0;
 	/*** End ***/
+/*
     }
     statusMsg = checkMessages(parsedMsg);
     returnMsg = createReturnMessage(statusMsg);
@@ -668,6 +673,16 @@ static void *readmessage(void *buptr)
     retbuffer[returnMsg.size()]=0;
     memcpy(retbuffer,returnMsg.c_str(),returnMsg.size());
     /* Writing */
+
+printf("\nWaiting before continuing\n");
+
+getchar();
+getchar();
+
+returnMsg = "HTTP/1.1 200 OK\r\n\r\nPurchased Code Accepted";
+char *retbuffer=new char[returnMsg.size()+1];
+retbuffer[returnMsg.size()]=0;
+memcpy(retbuffer,returnMsg.c_str(),returnMsg.size());
     writemessage(buptr, retbuffer);  
 }
 /* ************************************************************** */

@@ -23,8 +23,10 @@
 *
 ************************************************************************************************************* */
 /* ********************************* */
+#include <netinet/in.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <sys/ioctl.h>
 #include <sys/types.h>
 #include <arpa/inet.h>
 #include <sys/time.h>
@@ -36,15 +38,15 @@
 #include <string.h>
 #include <limits.h> 
 #include <stdlib.h>
+#include <net/if.h>
+#include <iostream>
+#include <sstream>
+#include <cstdlib>
 #include <stdio.h>
 #include <netdb.h> 
 #include <errno.h>
 #include <fcntl.h>
 #include <time.h>
-#include <iostream>
-#include <sstream>
-#include <cstdlib>
-#include <regex>
 /* ********************************* */
 /* ********************************* */
 #define MAXPATH 4096 	/* Max Length. */
