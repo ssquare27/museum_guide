@@ -59,7 +59,8 @@ int main()
 				// ignore button held down
 				printf("held\n");
 			}
-			else if (buttonIsNumeric(button))
+			//else if (buttonIsNumeric(button))
+			else if (buttonIsNumeric(button) || (buttonIsAlpha(button)))
 			{
 				// a new button was pressed
 				pincode[count] = button;
