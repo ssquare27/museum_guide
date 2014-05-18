@@ -201,7 +201,16 @@ def decode_request(message, ip):
         audio_code = audio_code.replace("#", "")
         print audio_code
         mac_return = sql_query("SELECT mac FROM IGEP WHERE ip=\""+ip+"\"")
+        mac = mac.replace(",", "")
+        mac = mac.replace("\n", "")
+        mac = mac.replace(" ", "")
         print mac_return
+        query = "SELECT customerID FROM Bookings WHERE mac='%s' AND timeOUT IS NULL" % (mac)
+        customerID = sql_query(query)
+        customerID = customerID.replace(",","")
+        customerID = customerID.replace("\n","")
+        customerID = customerID.replace(" ","")
+
         sql_response = sql_query("SELECT expertise FROM Customers WHERE customerID="+str(customerID))
         expertise = sql_response[0] 
         print expertise
@@ -235,7 +244,7 @@ def decode_request(message, ip):
 
             return "HTTP/1.1 200 OK \r\n\r\nCode valid"
         else:
-            return "HTTP/1.1 403 FORBIDDEN \r\n\r\n Code is unavailable"
+            return "HTTP/1.1 403 FORBIDDEN \r\n\r\nCode is unavailable"
         
 if __name__ == "__main__":
     #Host and port
