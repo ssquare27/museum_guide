@@ -174,7 +174,8 @@ def decode_request(message, ip):
     if lines[0].find("POST") >= 0:
         mac = lines[2].replace("Host: ", "")    
         mac = mac.replace("\r\n", "")
-        
+        mac = mac.replace(":", "-")
+        print mac
         auth_code = lines[3]
         auth_code = auth_code.replace("\r\n", "")
         auth_code = auth_code.replace("#", "")
@@ -186,16 +187,21 @@ def decode_request(message, ip):
 
         print sql_response
         if sql_response.find(auth_code) != 0:
-            return "HTTP/1.1 403 FORBIDDEN \r\n\r\n Code is unavailable"
+            return "HTTP/1.1 403 FORBIDDEN \r\n\r\nCode is unavailable"
         elif sql_response.find(auth_code)  >= 0:
-            sql_response = sql_query("UPDATE IGEP SET ip=\""+mac+"\" WHERE authCode=\""+auth_code+"\"")
-            return "HTTP/1.1 200 OK \r\n\r\n Code valid"
+            sql_response = sql_query("UPDATE IGEP SET ip=\""+ip+"\"  WHERE authCode=\""+auth_code+"\"")
+            return "HTTP/1.1 200 OK \r\n\r\nCode valid"
     elif lines[0].find("GET") >= 0:
-        customerID = 7
+        mac = lines[2].replace("Host: ", "")    
+        mac = mac.replace("\r\n", "")
+        mac = mac.replace(":", "-")
+        print mac
         audio_code = lines[3]
         audio_code = audio_code.replace("\r\n", "")
         audio_code = audio_code.replace("#", "")
         print audio_code
+        mac_return = sql_query("SELECT mac FROM IGEP WHERE ip=\""+ip+"\"")
+        print mac_return
         sql_response = sql_query("SELECT expertise FROM Customers WHERE customerID="+str(customerID))
         expertise = sql_response[0] 
         print expertise
@@ -227,7 +233,7 @@ def decode_request(message, ip):
             player.start()
             #gtk.main()
 
-            return "HTTP/1.1 200 OK \r\n\r\n Code valid"
+            return "HTTP/1.1 200 OK \r\n\r\nCode valid"
         else:
             return "HTTP/1.1 403 FORBIDDEN \r\n\r\n Code is unavailable"
         
