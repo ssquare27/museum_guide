@@ -406,11 +406,11 @@ int main(int argc, char *argv[])
         perror("Error: Socket Creation");
         exit(0);
     }
-    /*if (ptrh == NULL) 
+    if (ptrh == NULL) 
     {
         perror("Error: Invalid Host");
         exit(0);
-	}*/
+    }
 
     /* *************** */
        portnum = 9000;

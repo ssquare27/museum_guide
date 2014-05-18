@@ -247,6 +247,7 @@ StatusMessage checkMessages(StatusMessage aStatus)
 	if(protocol != "HTTP/1.1")
 	{
 		//invalid status protocol
+		invalidResponse.setMessage("Server response was invalid format - Protocol incorrect");
 		return invalidResponse;
 	}
 	
@@ -402,16 +403,24 @@ int main(int argc, char *argv[])
         perror("Error: Socket Creation");
         exit(0);
     }
-    /*if (ptrh == NULL) 
+/*
+    if (ptrh == NULL) 
     {
         perror("Error: Invalid Host");
         exit(0);
-	}*/
+    }
+*/
 
     /* *************** */
-       portnum = 25999;
+       portnum = 7000;
        ptrh = gethostbyname("localhost");
     /* *************** */
+
+    if (ptrh == NULL) 
+    {
+        perror("Error: Invalid Host");
+        exit(0);
+    }
 
     bzero((char *) &saddr, sizeof(saddr)); /* Clear sockaddr Structure. */
     saddr.sin_family = AF_INET;            /* Set Family to Internet. */
@@ -444,7 +453,7 @@ int main(int argc, char *argv[])
 
 //Wait for keypad, and use this value
 
-    sprintf(message,"POST HTTP/1.1\r\n\r\nHost: %.2X:%.2X:%.2X:%.2X:%.2X:%.2X\r\n#1254",(unsigned char)macAdd.ifr_hwaddr.sa_data[0],(unsigned char)macAdd.ifr_hwaddr.sa_data[1],(unsigned char)macAdd.ifr_hwaddr.sa_data[2],(unsigned char)macAdd.ifr_hwaddr.sa_data[3],(unsigned char)macAdd.ifr_hwaddr.sa_data[4],(unsigned char)macAdd.ifr_hwaddr.sa_data[5]);
+    sprintf(message,"GET HTTP/1.1\r\n\r\nHost: %.2X:%.2X:%.2X:%.2X:%.2X:%.2X\r\n#12",(unsigned char)macAdd.ifr_hwaddr.sa_data[0],(unsigned char)macAdd.ifr_hwaddr.sa_data[1],(unsigned char)macAdd.ifr_hwaddr.sa_data[2],(unsigned char)macAdd.ifr_hwaddr.sa_data[3],(unsigned char)macAdd.ifr_hwaddr.sa_data[4],(unsigned char)macAdd.ifr_hwaddr.sa_data[5]);
     close(fd);
 /*,inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr)*/
     /*******************/
@@ -485,8 +494,17 @@ int main(int argc, char *argv[])
     {
 	//Start gstreamer Steve + Nathan + Ben
 	//cout << "Starting GStreamer..." << endl;
-	//system("gst-launch-1.0 -v udpsrc port=80 ! queue2 use-buffering=TRUE low-percent=50 temp-template=/tmp/gstreamer-XXXXXX ! mad ! alsasink");
-	
+	system("gst-launch-1.0 -v udpsrc port=80 ! queue2 use-buffering=TRUE low-percent=50 temp-template=/tmp/gstreamer-XXXXXX ! mad ! alsasink");
+      GstAudio aplayer;
+
+      gst_init(NULL, NULL);
+      
+      aplayer.createElement("udpsrc", "source", 1);
+      aplayer.setOptions("udpsrc", "port", "7001");
+      aplayer.createElement("mad", "convert", 2);
+      aplayer.createElement("pulsesink","sink", 3);
+      aplayer.printElementList();
+      aplayer.playbackAuto();
 	//dont start gstreamer. Instead we need to send a get message.
     }
     else if(responseMsg.getCode() == 402)
