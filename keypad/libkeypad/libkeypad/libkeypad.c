@@ -298,7 +298,7 @@ enum segChar getHexRepresentation(enum KeypadButton button)
 	switch (button)
 	{
 	case KEY_1:
-		seg = SEG_ONE; break;
+	        seg = SEG_ONE; break;
 	case KEY_2:
 		seg = SEG_TWO; break;
 	case KEY_3:
@@ -318,7 +318,7 @@ enum segChar getHexRepresentation(enum KeypadButton button)
 	case KEY_0:
 		seg = SEG_ZERO; break;
 	case KEY_A:
-		seg = SEG_A; break;
+	        seg = SEG_A; break;
 	case KEY_B:
 		seg = SEG_B; break;
 	case KEY_C:
@@ -353,6 +353,26 @@ int buttonIsNumeric(enum KeypadButton button)
 		isNumeric = 1; break;
 	}
 	return isNumeric;
+}
+
+int buttonIsAlpha(enum KeypadButton button)
+{
+  int isAlpha;
+  switch (button)
+    {
+    case KEY_NONE:
+      isAlpha = -1; break;
+      	case KEY_A:
+	case KEY_B:
+	case KEY_C:
+	case KEY_D:
+	case KEY_E:
+	case KEY_F:
+		isAlpha = 1; break;
+	default /*Numeric*/:
+		isAlpha = 0; break;
+	}
+	return isAlpha;
 }
 
 int getRealNumber(enum KeypadButton button)
