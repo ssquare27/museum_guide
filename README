@@ -1,1 +1,23 @@
 http://esd.edwardb.co.uk/
+
+
+Server: 188.65.117.68
+Database: edwardbc_esd_db
+Username: edwardbc_server
+Password: lHAGuwsGd72x
+
+
+
+Useful SQL Commands for Server guys reading:
+
+  	"mac = mysql_query(SELECT mac FROM IGEP where ip=ipjustreceived)"
+     "$correctauthcode = mysql_query(SELECT authCode FROM IGEP WHERE mac=$mac)"
+     "$customerID = mysql_query(SELECT customerID FROM Bookings WHERE mac=$mac AND timeOUT IS NULL)"
+     "$expertise = mysql_query(SELECT expertise FROM Customers where customerID=$customerID)"
+     "$language = mysql_query(SELECT language FROM Customers where customerID=$customerID)"
+     "$filetostream = mysql_query(SELECT filePath FROM Audio WHERE audioCode=$audiocode AND expertise=$expertise AND language=$language)"
+     
+     
+SQL command to update log on playback:
+
+  	"mysql_query(INSERT INTO Log (customerID, audioCode, dateTime) VALUES ( '$customerID', '$audioCode', (select now()) ) )"
