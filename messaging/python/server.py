@@ -3,10 +3,33 @@ import socket
 import threading
 import SocketServer
 import MySQLdb
+import pygst
+pygst.require("0.10")
+import gst
+import pygtk
+import gtk
 
 from OpenSSL import SSL
 
 mutex = threading.Semaphore()
+
+class GstAudio:
+    def __init__(self):
+        self.pipeline = gst.Pipeline("serverPipeline")
+
+        self.audiotestsrc = gst.element_factory_make("filesrc", "audio")
+        self.audiotestsrc.set_property("location", "/home/ssquare/test.mp3")
+        self.pipeline.add(self.audiotestsrc)
+
+        self.decode = gst.element_factory_make("mad", "decoder")
+        self.pipeline.add(self.decode)
+
+        self.sink = gst.element_factory_make("alsasink", "sink")
+        self.pipeline.add(self.sink)
+
+        gst.element_link_many(self.audiotestsrc, self.decode, self.sink)
+
+        self.pipeline.set_state(gst.STATE_PLAYING)
 
 #Handler for the client requests.
 class ServerTCPReqHandler(SocketServer.BaseRequestHandler):
@@ -62,7 +85,7 @@ def sql_query(query):
         conn = MySQLdb.connect (host = "localhost",
         user = "igep",
         passwd = "letmein",
-        db = "test")
+        db = "esd")
 		#select cursor to enable database commands.
         cursor = conn.cursor()
         output = ""
@@ -88,7 +111,9 @@ def message_parser(message):
     response = ""
     if message.find("POST") >= 0:
         lines = message.split('\n')
-        #response = "{}".decode_request(message)
+        response = "{}".format(decode_request(message))
+    elif message.find("GET") >= 0:
+        lines = message.split('\n')
         response = "{}".format(decode_request(message))
     else:
         response = "404 ERROR"
@@ -107,15 +132,25 @@ def decode_request(message):
         auth_code = auth_code.replace("\r\n", "")
         auth_code = auth_code.replace("#", "")
         print auth_code
-        sql_response = sql_query("SELECT valid FROM IGEP WHERE authCode=\""+auth_code+"\"")
-        sql_response = sql_response.replace(",","")
-        if sql_response.find("Y") >= 0:
-            return "HTTP/1.1 403 FORBIDDEN \r\n\r\n Blah"
-        else:
+        sql_response = sql_query("SELECT authCode FROM IGEP WHERE authCode=\""+auth_code+"\"")
+        start=GstAudio()
+        gtk.main()
+        #sql_response = sql_response.replace(",","")
+        #sql_response = sql_response.replace("\n","")
+
+        print sql_response
+        if sql_response.find(auth_code) != 0:
+            return "HTTP/1.1 403 FORBIDDEN \r\n\r\n Code is unavailable"
+        elif sql_response.find(auth_code)  >= 0:
             sql_response = sql_query("UPDATE IGEP SET ip=\""+mac+"\" WHERE authCode=\""+auth_code+"\"")
-            return "HTTP/1.1 200 OK \r\n\r\n yay"
-        
+            return "HTTP/1.1 200 OK \r\n\r\n Code valid"
+    elif lines[2].find("http://") >= 0:
+        customerID = 7 
+        sql_response = sql_query("SELECT expertise FROM Customers WHERE customerID="+customerID)
     
+        sql_response = sql_query("SELECT language FROM Customers WHERE customerID="+customerID)
+
+        sql_response = sql_query("SELECT filePath FROM Audio WHERE audioCode=\""+audio_code+"\" AND expertise="+expertise+" AND language="+language)
         
 
 if __name__ == "__main__":
