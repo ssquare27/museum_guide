@@ -353,7 +353,6 @@ StatusMessage checkMessages(StatusMessage aStatus)
 
 	return invalidResponse;
 }
-
 /* **********************Main Function*************************** *
 *
 *Function Name: int main(int argc, char *argv[])
@@ -496,7 +495,152 @@ int main(int argc, char *argv[])
 	//cout << "Starting GStreamer..." << endl;
 	//system("gst-launch-1.0 -v udpsrc port=80 ! queue2 use-buffering=TRUE low-percent=50 temp-template=/tmp/gstreamer-XXXXXX ! mad ! alsasink");
 	
-	//dont start gstreamer. Instead we need to send a get message.
+	//dont start gstreamer. Instead we need to send a get message. implemented below.
+
+	while(1)
+	{
+	    //close socket, remake, and send new message
+	    close(socketfd);
+
+	    //clear all assets
+	    socketfd=0;
+	    ptrh=0;
+	    fd=0;
+	    fdm=0;
+	    bzero(message,200);
+	    bzero(buffer,MAXPATH); /* Clear. */ 
+	    statusMsg.StatusMessage::~StatusMessage();
+	    responseMsg.StatusMessage::~StatusMessage();
+	    testMessage.string::~string();
+
+	    //usleep(200000);
+		getchar();
+		getchar();
+
+	    //initialise
+	    StatusMessage statusMsg;
+	    StatusMessage responseMsg;
+
+	    /* ************** */
+	    /* Create Socket. */
+	    /* ************** */
+	    socketfd = socket(AF_INET, SOCK_STREAM, 0);
+	    if (socketfd < 0)
+	    { 
+		perror("Error: Socket Creation");
+		exit(0);
+	    }
+	/*
+	    if (ptrh == NULL) 
+	    {
+		perror("Error: Invalid Host");
+		exit(0);
+	    }
+	*/
+
+	    /* *************** */
+	       portnum = 7000;
+	       ptrh = gethostbyname("localhost");
+	    /* *************** */
+
+	    if (ptrh == NULL) 
+	    {
+		perror("Error: Invalid Host");
+		exit(0);
+	    }
+
+	    bzero((char *) &saddr, sizeof(saddr)); /* Clear sockaddr Structure. */
+	    saddr.sin_family = AF_INET;            /* Set Family to Internet. */
+	    /* Copy Host Name to Equivalent IP address and copy to saddr. */
+	    bcopy((char *)ptrh->h_addr, (char *)&saddr.sin_addr.s_addr, ptrh->h_length);
+	    saddr.sin_port = htons(portnum);       /* Use Specified Port Number. */
+	    /* Connect Socket to the Specified Server.*/
+	    if (connect(socketfd,(struct sockaddr *) &saddr,sizeof(saddr)) < 0) 
+	    {
+		perror("Error");
+		exit(0);
+	    }
+
+	    bzero(buffer,MAXPATH); /* Clear. */   
+	    /* Get IP Address */
+	    /******************/
+	    fd = socket(AF_INET, SOCK_DGRAM, 0);
+	    ifr.ifr_addr.sa_family = AF_INET;
+	    snprintf(ifr.ifr_name, IFNAMSIZ, "eth0");
+	    ioctl(fd, SIOCGIFADDR, &ifr);
+	    /******************/
+	    /******************/
+	    /* Get MAC Address */
+	    /*******************/
+	    fdm =socket(PF_INET,SOCK_DGRAM, 0);
+	    memset(&macAdd, 0x00, sizeof(macAdd));
+	    strcpy(macAdd.ifr_name, "eth0");
+	    ioctl(fdm, SIOCGIFHWADDR, &macAdd);
+	    close(fdm);
+	    ioctl(fd, SIOCGIFHWADDR, &macAdd);
+
+	//Wait for keypad, and use this value
+	/*choose a keypad button to kill/deactivate code*/
+
+	    sprintf(message,"GET HTTP/1.1\r\n\r\nHost: %.2X:%.2X:%.2X:%.2X:%.2X:%.2X\r\n#4242",(unsigned char)macAdd.ifr_hwaddr.sa_data[0],(unsigned char)macAdd.ifr_hwaddr.sa_data[1],(unsigned char)macAdd.ifr_hwaddr.sa_data[2],(unsigned char)macAdd.ifr_hwaddr.sa_data[3],(unsigned char)macAdd.ifr_hwaddr.sa_data[4],(unsigned char)macAdd.ifr_hwaddr.sa_data[5]);
+	    close(fd);
+	/*,inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr)*/
+	    /*******************/
+	    /*******************/
+	    sprintf(buffer,"%s",message);
+	    printf("\n-----------------------------------------------");
+	    printf("\nRequest Sent:");
+	    printf("\n-----------------------------------------------");
+	    printf("\n%s",buffer);
+	    printf("\n-----------------------------------------------\n\n");
+	    /* Write Data to Socket, Read Data From it and Display. */
+	    numchar = write(socketfd,buffer,strlen(buffer));
+	    if (numchar < 0)
+	    { 
+		perror("Error: Writing to Socket");
+		exit(0);
+	    }
+
+	    bzero(buffer,MAXPATH); /* Clear. */
+	    numchar = read(socketfd,buffer,MAXPATH);
+	    if (numchar < 0) 
+	    {
+	    	perror("Error: Reading from Socket");
+		exit(0);
+	    }
+	    printf("\n-----------------------------------------------");
+	    printf("\nMessage Received:");
+	    printf("\n-----------------------------------------------");
+	    printf("\n%s",buffer);
+	    printf("\n-----------------------------------------------\n\n");
+
+	    string testMessage(buffer);
+	    statusMsg = parseResponseMsg(testMessage);
+	    responseMsg = checkMessages(statusMsg);
+
+	    if(responseMsg.getCode() == 200)
+	    {
+		//gstreamer goes here :)
+		//ideally as a forked process (so we can wait for new code entered (go back through loop))
+		//if we have a stream currently active, and get to here. Kill the child, and act as normal
+	    }
+	    else if(responseMsg.getCode() == 400)
+	    {
+		//audio code does not exist (nothing assigned), alert user, and loop back round
+		printf("\nThis audio code is unavailable/does not exist.\nPlease try another\n");
+	    }
+	    else if(responseMsg.getCode() == 500)
+	    {
+		/*Sleep for 5 Seconds, Check if the socket is still connected
+		 *If not, recreate socket and then attempt a response resend.
+		 *To be implemented. Not for prototype.*/
+
+		// if we get 500 again, then serious server/client issue with messaging/
+		// sockets persist
+
+		//^To be implemented by Sami...
+	    }
+	}
     }
     else if(responseMsg.getCode() == 402)
     {
@@ -514,6 +658,8 @@ int main(int argc, char *argv[])
 
 	// if we get 500 again, then serious server/client issue with messaging/
 	// sockets persist
+
+	//^To be implemented by Sami...
     }
     /* Close Socket. */
     close(socketfd);
