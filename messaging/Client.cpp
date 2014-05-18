@@ -488,39 +488,13 @@ int main(int argc, char *argv[])
     StatusMessage statusMsg;
     statusMsg = parseResponseMsg(testMessage);
     responseMsg = checkMessages(statusMsg);
-	
+
     if(responseMsg.getCode() == 200)
     {
-	//Start gstreamer Steve + Nathan + Ben
-	//cout << "Starting GStreamer..." << endl;
-	//system("gst-launch-1.0 -v udpsrc port=80 ! queue2 use-buffering=TRUE low-percent=50 temp-template=/tmp/gstreamer-XXXXXX ! mad ! alsasink");
-	
-	//dont start gstreamer. Instead we need to send a get message. implemented below.
-
 	while(1)
 	{
-	    //close socket, remake, and send new message
+	    /* Close Socket. */
 	    close(socketfd);
-
-	    //clear all assets
-	    socketfd=0;
-	    ptrh=0;
-	    fd=0;
-	    fdm=0;
-	    bzero(message,200);
-	    bzero(buffer,MAXPATH); /* Clear. */ 
-	    statusMsg.StatusMessage::~StatusMessage();
-	    responseMsg.StatusMessage::~StatusMessage();
-	    testMessage.string::~string();
-
-	    //usleep(200000);
-		getchar();
-		getchar();
-
-	    //initialise
-	    StatusMessage statusMsg;
-	    StatusMessage responseMsg;
-
 	    /* ************** */
 	    /* Create Socket. */
 	    /* ************** */
@@ -530,25 +504,17 @@ int main(int argc, char *argv[])
 		perror("Error: Socket Creation");
 		exit(0);
 	    }
-	/*
-	    if (ptrh == NULL) 
-	    {
-		perror("Error: Invalid Host");
-		exit(0);
-	    }
-	*/
 
 	    /* *************** */
 	       portnum = 7000;
 	       ptrh = gethostbyname("localhost");
 	    /* *************** */
-
+		
 	    if (ptrh == NULL) 
 	    {
 		perror("Error: Invalid Host");
 		exit(0);
 	    }
-
 	    bzero((char *) &saddr, sizeof(saddr)); /* Clear sockaddr Structure. */
 	    saddr.sin_family = AF_INET;            /* Set Family to Internet. */
 	    /* Copy Host Name to Equivalent IP address and copy to saddr. */
@@ -560,7 +526,6 @@ int main(int argc, char *argv[])
 		perror("Error");
 		exit(0);
 	    }
-
 	    bzero(buffer,MAXPATH); /* Clear. */   
 	    /* Get IP Address */
 	    /******************/
@@ -578,13 +543,16 @@ int main(int argc, char *argv[])
 	    ioctl(fdm, SIOCGIFHWADDR, &macAdd);
 	    close(fdm);
 	    ioctl(fd, SIOCGIFHWADDR, &macAdd);
-
-	//Wait for keypad, and use this value
-	/*choose a keypad button to kill/deactivate code*/
-
+	    /******************/
+	    /******************/
+	    /* Keypad Section */
+	    /******************/
+	    /******************/
+	    getchar();
+	    /******************/
+	    /******************/
 	    sprintf(message,"GET HTTP/1.1\r\n\r\nHost: %.2X:%.2X:%.2X:%.2X:%.2X:%.2X\r\n#4242",(unsigned char)macAdd.ifr_hwaddr.sa_data[0],(unsigned char)macAdd.ifr_hwaddr.sa_data[1],(unsigned char)macAdd.ifr_hwaddr.sa_data[2],(unsigned char)macAdd.ifr_hwaddr.sa_data[3],(unsigned char)macAdd.ifr_hwaddr.sa_data[4],(unsigned char)macAdd.ifr_hwaddr.sa_data[5]);
 	    close(fd);
-	/*,inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr)*/
 	    /*******************/
 	    /*******************/
 	    sprintf(buffer,"%s",message);
@@ -637,7 +605,8 @@ int main(int argc, char *argv[])
 
 		// if we get 500 again, then serious server/client issue with messaging/
 		// sockets persist
-
+		printf("\nIAM DEAD. 500");
+   	    	exit(0);
 		//^To be implemented by Sami...
 	    }
 	}
@@ -658,7 +627,8 @@ int main(int argc, char *argv[])
 
 	// if we get 500 again, then serious server/client issue with messaging/
 	// sockets persist
-
+	    printf("\nIAM DEAD. 500");
+   	    exit(0);
 	//^To be implemented by Sami...
     }
     /* Close Socket. */
