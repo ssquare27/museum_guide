@@ -1,5 +1,5 @@
 /*********************************************** -HTIGCP- ******************************************************
-
+*
 *Author: Sami Giacaman & Mark Randall.
 *Date Created: 12/11/2013.
 *Date Amended: 26/11/2013
@@ -10,7 +10,7 @@
 *Program Description: 
 *
 *How to Compile: g++ -I -Wall -o server Server.cpp -lpthread
-*		 g++ -I -Wall -o client Client.cpp
+*		 g++ -I -Wall -o client Client.cpp PIO_Library.c -lm
 *
 *And to Run it: ./server <Port Number>
 *		./client 
@@ -365,6 +365,51 @@ StatusMessage checkMessages(StatusMessage aStatus)
 int main(int argc, char *argv[])
 {
 
+
+//char *usbPIO = "/dev/ttyACM0"; included in PIO_library.c
+char reply[10];
+char check[10];
+
+int fdKey, flag1 = 0, flag2 = 1; 
+int delayTime = 1000;
+char number[10];
+
+//fdKey = open(usbPIO, O_RDWR | O_NOCTTY | O_NONBLOCK);
+
+/*if(fdKey>0)
+{
+	printf("Open successfully\n");
+
+	write(fdKey, "@00D000\r", 8);
+	usleep(delayTime);
+	read(fdKey, check, 4);
+	usleep(delayTime);
+	printf("\n%c%c%c",check[0],check[1],check[2]);
+
+	write(fdKey, "@00D1FF\r", 8);
+	usleep(delayTime);
+	read(fdKey, check, 4);
+	usleep(delayTime);
+	printf("\n%c%c%c",check[0],check[1],check[2]);
+
+	write(fdKey, "@00D200\r", 8);
+	usleep(delayTime);
+	read(fdKey, check, 4);
+	usleep(delayTime);
+	printf("\n%c%c%c",check[0],check[1],check[2]);
+}
+else
+{
+	perror(usbPIO);
+	printf("Failed to Open Device\n");
+}*/
+/*UNCOMMENT!!!
+    if(!Initialise_PIO(0x00,0xFF,0x00))
+    {
+    	printf("Failed to Initialise Device\n");
+    	return 0;
+    }
+*/
     int numchar, portnum, socketfd, x = 0, fd, fdm;
     char buffer[MAXPATH], message[200];
     char command[MAXPATH+1];
@@ -450,9 +495,154 @@ int main(int argc, char *argv[])
     close(fdm);
     ioctl(fd, SIOCGIFHWADDR, &macAdd);
 
-//Wait for keypad, and use this value
+	/* Keypad Routine */
 
-    sprintf(message,"POST HTTP/1.1\r\n\r\nHost: %.2X:%.2X:%.2X:%.2X:%.2X:%.2X\r\n#4242",(unsigned char)macAdd.ifr_hwaddr.sa_data[0],(unsigned char)macAdd.ifr_hwaddr.sa_data[1],(unsigned char)macAdd.ifr_hwaddr.sa_data[2],(unsigned char)macAdd.ifr_hwaddr.sa_data[3],(unsigned char)macAdd.ifr_hwaddr.sa_data[4],(unsigned char)macAdd.ifr_hwaddr.sa_data[5]);
+
+	/*if(!Initialise_PIO(0x00,0xFF,0x00))
+	{
+		printf("Failed to Initialise Device\n");
+		return 0;
+	}*/
+
+	//printf("Open successfully..\n");
+/*UNCOMMENT!!!
+ while(flag1 < 4) 
+ {
+	while(1)
+	{
+		Write_PIO(0,1);
+		strcpy(reply,Read_PIO(1));
+
+		switch(reply[4])
+		{
+			case '1':
+				//printf("\nFirst Column First Button [1]");
+				Write_PIO(2,LED_1);
+				flag1 + 1;
+				std::cout << number << '1' ;
+				
+				
+				break;
+			break;
+
+			case '2':
+				//printf("\nFirst Column Second Button [4]");
+				Write_PIO(2,LED_4);
+				flag1 + 1;
+				std::cout << number << '4' ;
+			break;
+		
+			case '4':
+				//printf("\nFirst Column Third Button [7]");
+				Write_PIO(2,LED_7);
+				flag1 + 1;
+				std::cout << number << '7' ;
+			break;
+
+			case '8':
+				//printf("\nFirst Column Fourth Button [A]");
+				Write_PIO(2,LED_A);
+			break;
+		}	
+
+		Write_PIO(0,2);
+		strcpy(reply,Read_PIO(1));
+	
+		switch(reply[4])
+		{
+			case '1':
+				//printf("\nSecond Column First Button [2]");
+				Write_PIO(2,LED_2);
+				flag1 + 1;
+				std::cout << number << '2' ;
+			break;
+
+			case '2':
+				//printf("\nSecond Column Second Button [5]");
+				Write_PIO(2,LED_5);
+				flag1 + 1;
+				std::cout << number << '5' ;
+			break;
+		
+			case '4':
+				//printf("\nSecond Column Third Button [8]");
+				Write_PIO(2,LED_8);
+				flag1 + 1;
+				std::cout << number << '8' ;
+			break;
+
+			case '8':
+				//printf("\nSecond Column Fourth Button [0]");
+				Write_PIO(2,LED_0);
+				flag1 + 1;
+				std::cout << number << '0' ;
+			break;
+		}
+
+		Write_PIO(0,4);
+		strcpy(reply,Read_PIO(1));
+	
+		switch(reply[4])
+		{
+			case '1':
+				//printf("\nThird Column First Button [3]");
+				Write_PIO(2,LED_3);
+				flag1 + 1;
+				std::cout << number << '3' ;
+
+			break;
+
+			case '2':
+				//printf("\nThird Column Second Button [6]");
+				Write_PIO(2,LED_6);
+				flag1 + 1;
+				std::cout << number << '6' ;
+			break;
+		
+			case '4':
+				//printf("\nThird Column Third Button [9]");
+				Write_PIO(2,LED_9);
+				flag1 + 1;
+				std::cout << number << '9' ;
+			break;
+
+			case '8':
+				//printf("\nThird Column Fourth Button [B]");
+				Write_PIO(2,LED_B);
+			break;
+		}
+
+		Write_PIO(0,8);
+		strcpy(reply,Read_PIO(1));
+	
+		switch(reply[4])
+		{
+			case '1':
+				//printf("\nFourth Column First Button [F]");
+				Write_PIO(2,LED_F);
+			break;
+
+			case '2':
+				//printf("\nFourth Column Second Button [E]");
+				Write_PIO(2,LED_E);
+			break;
+		
+			case '4':
+				//printf("\nFourth Column Third Button [D]");
+				Write_PIO(2,LED_D);
+			break;
+
+			case '8':
+				//printf("\nFourth Column Fourth Button [C]");
+				Write_PIO(2,LED_C);
+			break;
+		}
+	}
+ }
+ flag1 = 0;
+*/
+strcpy(number,"4242");
+    sprintf(message,"POST HTTP/1.1\r\n\r\nHost: %.2X:%.2X:%.2X:%.2X:%.2X:%.2X\r\n#%s",(unsigned char)macAdd.ifr_hwaddr.sa_data[0],(unsigned char)macAdd.ifr_hwaddr.sa_data[1],(unsigned char)macAdd.ifr_hwaddr.sa_data[2],(unsigned char)macAdd.ifr_hwaddr.sa_data[3],(unsigned char)macAdd.ifr_hwaddr.sa_data[4],(unsigned char)macAdd.ifr_hwaddr.sa_data[5],number);
     close(fd);
 /*,inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr)*/
     /*******************/
@@ -548,10 +738,145 @@ int main(int argc, char *argv[])
 	    /* Keypad Section */
 	    /******************/
 	    /******************/
-	    getchar();
+/*UNCOMMENT OUT!!!
+while(flag2 < 4) // increment with each succ press
+ {
+	while(1)
+	{
+		Write_PIO(0,1);
+		strcpy(reply,Read_PIO(1));
+
+		switch(reply[4])
+		{
+			case '1':
+				//printf("\nFirst Column First Button [1]");
+				Write_PIO(2,LED_1);
+				flag1 + 1;
+				std::cout << number << '1' ;
+				
+				
+				break;
+			break;
+
+			case '2':
+				//printf("\nFirst Column Second Button [4]");
+				Write_PIO(2,LED_4);
+				flag1 + 1;
+				std::cout << number << '4' ;
+			break;
+		
+			case '4':
+				//printf("\nFirst Column Third Button [7]");
+				Write_PIO(2,LED_7);
+				flag1 + 1;
+				std::cout << number << '7' ;
+			break;
+
+			case '8':
+				//printf("\nFirst Column Fourth Button [A]");
+				Write_PIO(2,LED_A);
+			break;
+		}	
+
+		Write_PIO(0,2);
+		strcpy(reply,Read_PIO(1));
+	
+		switch(reply[4])
+		{
+			case '1':
+				//printf("\nSecond Column First Button [2]");
+				Write_PIO(2,LED_2);
+				flag1 + 1;
+				std::cout << number << '2' ;
+			break;
+
+			case '2':
+				//printf("\nSecond Column Second Button [5]");
+				Write_PIO(2,LED_5);
+				flag1 + 1;
+				std::cout << number << '5' ;
+			break;
+		
+			case '4':
+				//printf("\nSecond Column Third Button [8]");
+				Write_PIO(2,LED_8);
+				flag1 + 1;
+				std::cout << number << '8' ;
+			break;
+
+			case '8':
+				//printf("\nSecond Column Fourth Button [0]");
+				Write_PIO(2,LED_0);
+				flag1 + 1;
+				std::cout << number << '0' ;
+			break;
+		}
+
+		Write_PIO(0,4);
+		strcpy(reply,Read_PIO(1));
+	
+		switch(reply[4])
+		{
+			case '1':
+				//printf("\nThird Column First Button [3]");
+				Write_PIO(2,LED_3);
+				flag1 + 1;
+				std::cout << number << '3' ;
+
+			break;
+
+			case '2':
+				//printf("\nThird Column Second Button [6]");
+				Write_PIO(2,LED_6);
+				flag1 + 1;
+				std::cout << number << '6' ;
+			break;
+		
+			case '4':
+				//printf("\nThird Column Third Button [9]");
+				Write_PIO(2,LED_9);
+				flag1 + 1;
+				std::cout << number << '9' ;
+			break;
+
+			case '8':
+				//printf("\nThird Column Fourth Button [B]");
+				Write_PIO(2,LED_B);
+			break;
+		}
+
+		Write_PIO(0,8);
+		strcpy(reply,Read_PIO(1));
+	
+		switch(reply[4])
+		{
+			case '1':
+				//printf("\nFourth Column First Button [F]");
+				Write_PIO(2,LED_F);
+			break;
+
+			case '2':
+				//printf("\nFourth Column Second Button [E]");
+				Write_PIO(2,LED_E);
+			break;
+		
+			case '4':
+				//printf("\nFourth Column Third Button [D]");
+				Write_PIO(2,LED_D);
+			break;
+
+			case '8':
+				//printf("\nFourth Column Fourth Button [C]");
+				Write_PIO(2,LED_C);
+			break;
+		}
+	}
+ }
+	    flag2 = 0; //reset
 	    /******************/
 	    /******************/
-	    sprintf(message,"GET HTTP/1.1\r\n\r\nHost: %.2X:%.2X:%.2X:%.2X:%.2X:%.2X\r\n#4242",(unsigned char)macAdd.ifr_hwaddr.sa_data[0],(unsigned char)macAdd.ifr_hwaddr.sa_data[1],(unsigned char)macAdd.ifr_hwaddr.sa_data[2],(unsigned char)macAdd.ifr_hwaddr.sa_data[3],(unsigned char)macAdd.ifr_hwaddr.sa_data[4],(unsigned char)macAdd.ifr_hwaddr.sa_data[5]);
+strcpy(number,"6969");
+	    sprintf(message,"GET HTTP/1.1\r\n\r\nHost: %.2X:%.2X:%.2X:%.2X:%.2X:%.2X\r\n#%s",(unsigned char)macAdd.ifr_hwaddr.sa_data[0],(unsigned char)macAdd.ifr_hwaddr.sa_data[1],(unsigned char)macAdd.ifr_hwaddr.sa_data[2],(unsigned char)macAdd.ifr_hwaddr.sa_data[3],(unsigned char)macAdd.ifr_hwaddr.sa_data[4],(unsigned char)macAdd.ifr_hwaddr.sa_data[5],number);
 	    close(fd);
 	    /*******************/
 	    /*******************/
@@ -582,18 +907,20 @@ int main(int argc, char *argv[])
 	    printf("\n%s",buffer);
 	    printf("\n-----------------------------------------------\n\n");
 
-	    string testMessage(buffer);
-	    statusMsg = parseResponseMsg(testMessage);
+	    string testMessage2(buffer);
+	    statusMsg = parseResponseMsg(testMessage2);
 	    responseMsg = checkMessages(statusMsg);
 
 	    if(responseMsg.getCode() == 200)
 	    {
+		printf("Streaming...\n");
 		//gstreamer goes here :)
 		//ideally as a forked process (so we can wait for new code entered (go back through loop))
 		//if we have a stream currently active, and get to here. Kill the child, and act as normal
 	    }
 	    else if(responseMsg.getCode() == 400)
 	    {
+		printf("Audio Code issue\n");
 		//audio code does not exist (nothing assigned), alert user, and loop back round
 		printf("\nThis audio code is unavailable/does not exist.\nPlease try another\n");
 	    }

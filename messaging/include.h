@@ -42,11 +42,15 @@
 #include <iostream>
 #include <sstream>
 #include <cstdlib>
+#include <cstring>
 #include <stdio.h>
 #include <netdb.h> 
 #include <errno.h>
 #include <fcntl.h>
 #include <time.h>
+extern "C" {
+#include "PIO_Library.h"
+}
 /* ********************************* */
 /* ********************************* */
 #define MAXPATH 4096 	/* Max Length. */
@@ -56,6 +60,22 @@
 /* ************************************************************************************* */
 #define SERVICEUN "HTTP/1.1 - 503 - Service Unavailble\r\n"
 /* ************************************************************************************* */
+#define LED_0 0x3F
+#define LED_1 0x06
+#define LED_2 0x5B
+#define LED_3 0x4F
+#define LED_4 0x66
+#define LED_5 0x6D
+#define LED_6 0x7D
+#define LED_7 0x07
+#define LED_8 0x7F
+#define LED_9 0x6F
+#define LED_A 0x77
+#define LED_B 0x7C
+#define LED_C 0x39
+#define LED_D 0x5E
+#define LED_E 0x79
+#define LED_F 0x71
 /* ********************************* */
 typedef struct 
 {
