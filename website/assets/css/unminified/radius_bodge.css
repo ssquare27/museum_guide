@@ -1,0 +1,92 @@
+	<!-- CSS3 Bodge -->
+    <!--[if lt IE 9]>
+    <style>
+	.img-rounded{behavior:url(scripts/PIE.htc)}
+	.img-circle{behavior:url(scripts/PIE.htc)}
+	pre{behavior:url(scripts/PIE.htc)}
+	.label{behavior:url(scripts/PIE.htc)}
+	.badge{behavior:url(scripts/PIE.htc)}
+	.table-bordered{behavior:url(scripts/PIE.htc)}
+	.uneditable-input{behavior:url(scripts/PIE.htc)}
+	.input-append .uneditable-input,.input-prepend .uneditable-input{behavior:url(scripts/PIE.htc)}
+	.input-append .btn-group > .dropdown-toggle,.input-prepend .btn-group > .dropdown-toggle{behavior:url(scripts/PIE.htc)}
+	.input-prepend .add-on:first-child,.input-prepend .btn:first-child{behavior:url(scripts/PIE.htc)}
+	.input-append input,.input-append select,.input-append .uneditable-input{behavior:url(scripts/PIE.htc)}
+	.input-append input + .btn-group .btn:last-child,.input-append select + .btn-group .btn:last-child,.input-append .uneditable-input + .btn-group .btn:last-child{behavior:url(scripts/PIE.htc)}
+	.input-append .add-on:last-child,.input-append .btn:last-child,.input-append .btn-group:last-child > .dropdown-toggle{behavior:url(scripts/PIE.htc)}
+	.input-prepend.input-append input,.input-prepend.input-append select,.input-prepend.input-append .uneditable-input{behavior:url(scripts/PIE.htc)}
+	.input-prepend.input-append input + .btn-group .btn,.input-prepend.input-append select + .btn-group .btn,.input-prepend.input-append .uneditable-input + .btn-group .btn{behavior:url(scripts/PIE.htc)}
+	.input-prepend.input-append .add-on:first-child,.input-prepend.input-append .btn:first-child{behavior:url(scripts/PIE.htc)}
+	.input-prepend.input-append .add-on:last-child,.input-prepend.input-append .btn:last-child{behavior:url(scripts/PIE.htc)}
+	input.search-query{behavior:url(scripts/PIE.htc)}
+	.form-search .input-append .search-query,.form-search .input-prepend .search-query{behavior:url(scripts/PIE.htc)}
+	.form-search .input-append .search-query{behavior:url(scripts/PIE.htc)}
+	.form-search .input-append .btn{behavior:url(scripts/PIE.htc)}
+	.form-search .input-prepend .search-query{behavior:url(scripts/PIE.htc)}
+	.form-search .input-prepend .btn{behavior:url(scripts/PIE.htc)}
+	.btn{behavior:url(scripts/PIE.htc)}
+	.btn-large{behavior:url(scripts/PIE.htc)}
+	.btn-small{behavior:url(scripts/PIE.htc)}
+	.btn-mini{behavior:url(scripts/PIE.htc)}
+	.btn-link{behavior:url(scripts/PIE.htc)}
+	.btn-group > .btn{behavior:url(scripts/PIE.htc)}
+	.btn-group > .btn:first-child{behavior:url(scripts/PIE.htc)}
+	.btn-group > .btn:last-child,.btn-group > .dropdown-toggle{behavior:url(scripts/PIE.htc)}
+	.btn-group > .btn.large:first-child{behavior:url(scripts/PIE.htc)}
+	.btn-group > .btn.large:last-child,.btn-group > .large.dropdown-toggle{behavior:url(scripts/PIE.htc)}
+	.btn-group-vertical > .btn{behavior:url(scripts/PIE.htc)}
+	.btn-group-vertical > .btn:first-child{behavior:url(scripts/PIE.htc)}
+	.btn-group-vertical > .btn:last-child{behavior:url(scripts/PIE.htc)}
+	.btn-group-vertical > .btn-large:first-child{behavior:url(scripts/PIE.htc)}
+	.btn-group-vertical > .btn-large:last-child{behavior:url(scripts/PIE.htc)}
+	.nav-tabs > li > a{behavior:url(scripts/PIE.htc)}
+	.nav-pills > li > a{behavior:url(scripts/PIE.htc)}
+	.nav-tabs.nav-stacked > li > a{behavior:url(scripts/PIE.htc)}
+	.nav-tabs.nav-stacked > li:first-child > a{behavior:url(scripts/PIE.htc)}
+	.nav-tabs.nav-stacked > li:last-child > a{behavior:url(scripts/PIE.htc)}
+	.nav-tabs .dropdown-menu{behavior:url(scripts/PIE.htc)}
+	.nav-pills .dropdown-menu{behavior:url(scripts/PIE.htc)}
+	.tabs-below > .nav-tabs > li > a{behavior:url(scripts/PIE.htc)}
+	.tabs-left > .nav-tabs > li > a{behavior:url(scripts/PIE.htc)}
+	.tabs-right > .nav-tabs > li > a{behavior:url(scripts/PIE.htc)}
+	.navbar-inner{behavior:url(scripts/PIE.htc)}
+	.navbar-search .search-query{behavior:url(scripts/PIE.htc)}
+	.navbar-static-top .navbar-inner{behavior:url(scripts/PIE.htc)}
+	.navbar-fixed-top .navbar-inner,.navbar-fixed-bottom .navbar-inner{behavior:url(scripts/PIE.htc)}
+	.navbar .btn-navbar .icon-bar{behavior:url(scripts/PIE.htc)}
+	.navbar .pull-right > li > .dropdown-menu .dropdown-menu,.navbar .nav > li > .dropdown-menu.pull-right .dropdown-menu{behavior:url(scripts/PIE.htc)}
+	.breadcrumb{behavior:url(scripts/PIE.htc)}
+	.pagination ul{behavior:url(scripts/PIE.htc)}
+	.pagination ul > li:first-child > a,.pagination ul > li:first-child > span{behavior:url(scripts/PIE.htc)}
+	.pagination ul > li:last-child > a,.pagination ul > li:last-child > span{behavior:url(scripts/PIE.htc)}
+	.pagination-large ul > li:first-child > a,.pagination-large ul > li:first-child > span{behavior:url(scripts/PIE.htc)}
+	.pagination-large ul > li:last-child > a,.pagination-large ul > li:last-child > span{behavior:url(scripts/PIE.htc)}
+	.pagination-mini ul > li:first-child > a,.pagination-small ul > li:first-child > a,.pagination-mini ul > li:first-child > span,.pagination-small ul > li:first-child > span{behavior:url(scripts/PIE.htc)}
+	.pagination-mini ul > li:last-child > a,.pagination-small ul > li:last-child > a,.pagination-mini ul > li:last-child > span,.pagination-small ul > li:last-child > span{behavior:url(scripts/PIE.htc)}
+	.pager li > a,.pager li > span{behavior:url(scripts/PIE.htc)}
+	.thumbnail{behavior:url(scripts/PIE.htc)}
+	.alert{behavior:url(scripts/PIE.htc)}
+	.progress{behavior:url(scripts/PIE.htc)}
+	.hero-unit{behavior:url(scripts/PIE.htc)}
+	.tooltip-inner{behavior:url(scripts/PIE.htc)}
+	.popover{behavior:url(scripts/PIE.htc)}
+	.popover-title{behavior:url(scripts/PIE.htc)}
+	.modal{behavior:url(scripts/PIE.htc)}
+	.modal-footer{behavior:url(scripts/PIE.htc)}
+	.dropdown-menu{behavior:url(scripts/PIE.htc)}
+	.dropdown-submenu > .dropdown-menu{behavior:url(scripts/PIE.htc)}
+	.dropup .dropdown-submenu > .dropdown-menu{behavior:url(scripts/PIE.htc)}
+	.dropdown-submenu.pull-left > .dropdown-menu{behavior:url(scripts/PIE.htc)}
+	.typeahead{behavior:url(scripts/PIE.htc)}
+	.accordion-group{behavior:url(scripts/PIE.htc)}
+	.carousel-control{behavior:url(scripts/PIE.htc)}
+	.carousel-control{behavior:url(scripts/PIE.htc)}
+	.carousel-indicators li{behavior:url(scripts/PIE.htc)}
+	.well{behavior:url(scripts/PIE.htc)}
+	.well-large{behavior:url(scripts/PIE.htc)}
+	.well-small{behavior:url(scripts/PIE.htc)}
+	.nav-collapse .nav > li > a,  .nav-collapse .dropdown-menu a{behavior:url(scripts/PIE.htc)}
+	.nav-collapse .btn{behavior:url(scripts/PIE.htc)}
+	.nav-collapse .dropdown-menu{behavior:url(scripts/PIE.htc)}
+	</style>
+    <![endif]-->
