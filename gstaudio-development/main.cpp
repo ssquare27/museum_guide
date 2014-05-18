@@ -17,5 +17,7 @@ int main (int argc, char *argv[])
   
   aplayer.printElementList();
 
+  //aplayer.seek(100000000000);
+  
   aplayer.playbackAuto();
 }

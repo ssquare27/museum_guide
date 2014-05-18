@@ -160,11 +160,14 @@ void GstAudio::playbackAuto()
   GstElement *pipeline = gst_pipeline_new("audio-player");
   GMainLoop *loop = g_main_loop_new (NULL, FALSE);;
   GstElement **elementArray = new(GstElement*[maxElements]);
+
+  curPipe = pipeline;
   
   addBin(pipeline, elementArray);
   
   gst_element_set_state (pipeline, GST_STATE_PLAYING);
 
+  seek(100000000000);
   g_print ("Running...\n");
   g_main_loop_run (loop);
 }
@@ -237,9 +240,9 @@ void GstAudio::addToArray(GstElement **eArray)
     }
 }
 
-int GstAudio::seek(GstElement* pipeline, gint64 nanoTime)
+int GstAudio::seek(gint64 nanoTime)
 {
-  if(!gst_element_seek(pipeline, 1.0, GST_FORMAT_TIME, GST_SEEK_FLAG_FLUSH,
+  if(!gst_element_seek(curPipe, 1.0, GST_FORMAT_TIME, GST_SEEK_FLAG_FLUSH,
                          GST_SEEK_TYPE_SET, nanoTime,
                          GST_SEEK_TYPE_NONE, GST_CLOCK_TIME_NONE)) {
     g_print ("Seek failed!\n");
@@ -253,7 +256,7 @@ int GstAudio::setOptions(string elementName, string option, string argument)
   if(optionElement != NULL)
     {
       cout << "adding file: " << argument << endl;
-      g_object_set(G_OBJECT(optionElement), option, argument, NULL);
+      g_object_set(G_OBJECT(optionElement), option.c_str(), argument.c_str(), NULL);
       return 0;
     }
   else

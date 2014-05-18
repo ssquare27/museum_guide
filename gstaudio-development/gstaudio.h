@@ -24,6 +24,7 @@ class GstAudio
   int maxElements;
   struct gstver version;
   gstElementList *elementHead;
+  GstElement *curPipe;
   //Private functions used in implementation, 
   void addElementList(GstElement*, std::string, std::string, int);
  //Public Class Methods.
@@ -38,7 +39,7 @@ class GstAudio
   void linkAllElements();
   void addBin(GstElement*, GstElement**);
   void addToArray(GstElement**);
-  int seek(GstElement*, gint64 nanoTime);
+  int seek(gint64 nanoTime);
   int setOptions(std::string elementName, std::string option, std::string argument);
 };
 
