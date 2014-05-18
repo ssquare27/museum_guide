@@ -1,5 +1,5 @@
 /*********************************************** -HTIGCP- ******************************************************
-
+*
 *Author: Sami Giacaman & Mark Randall.
 *Date Created: 12/11/2013.
 *Date Amended: 26/11/2013
@@ -10,7 +10,7 @@
 *Program Description: 
 *
 *How to Compile: g++ -I -Wall -o server Server.cpp -lpthread
-*		 g++ -I -Wall -o client Client.cpp
+*		 g++ -I -Wall -o client Client.cpp PIO_Library.c -lm
 *
 *And to Run it: ./server <Port Number>
 *		./client 
@@ -365,6 +365,44 @@ StatusMessage checkMessages(StatusMessage aStatus)
 int main(int argc, char *argv[])
 {
 
+//keypad setup
+char *usbPIO = "/dev/ttyACM0";
+char reply[10];
+char check[10];
+
+int fdKey; 
+int delayTime = 1000;
+
+fdKey = open(usbPIO, O_RDWR | O_NOCTTY | O_NONBLOCK);
+
+if(fdKey>0)
+{
+	printf("Open successfully\n");
+
+	write(fdKey, "@00D000\r", 8);
+	usleep(delayTime);
+	read(fdKey, check, 4);
+	usleep(delayTime);
+	printf("\n%c%c%c",check[0],check[1],check[2]);
+
+	write(fdKey, "@00D1FF\r", 8);
+	usleep(delayTime);
+	read(fdKey, check, 4);
+	usleep(delayTime);
+	printf("\n%c%c%c",check[0],check[1],check[2]);
+
+	write(fdKey, "@00D200\r", 8);
+	usleep(delayTime);
+	read(fdKey, check, 4);
+	usleep(delayTime);
+	printf("\n%c%c%c",check[0],check[1],check[2]);
+}
+else
+{
+	perror(usbPIO);
+	printf("Failed to Open Device\n");
+}
+
     int numchar, portnum, socketfd, x = 0, fd, fdm;
     char buffer[MAXPATH], message[200];
     char command[MAXPATH+1];
@@ -451,6 +489,127 @@ int main(int argc, char *argv[])
     ioctl(fd, SIOCGIFHWADDR, &macAdd);
 
 //Wait for keypad, and use this value
+
+	Write_PIO(0,1);
+	Read_PIO(1);
+
+	switch(reply[4])
+	{
+		case '1':
+			printf("\nFirst Column First Button [1]");
+			usleep(delayTime);
+			Write_PIO(2,LED_1);
+			break;
+		
+		break;
+
+		case '2':
+			printf("\nFirst Column Second Button [4]");
+			usleep(delayTime);
+			Write_PIO(2,LED_4);
+		break;
+
+		case '4':
+			printf("\nFirst Column Third Button [7]");
+			usleep(delayTime);
+			Write_PIO(2,LED_7);
+		break;
+
+		case '8':
+			printf("\nFirst Column Fourth Button [A]");
+			usleep(delayTime);
+			Write_PIO(2,LED_A);
+		break;
+	}	
+	Write_PIO(0,2);
+	Read_PIO(1);
+
+	switch(reply[4])
+	{
+		case '1':
+			printf("\nSecond Column First Button [2]");
+			usleep(delayTime);
+			Write_PIO(2,LED_2);
+		break;
+
+		case '2':
+			printf("\nSecond Column Second Button [5]");
+			usleep(delayTime);
+			Write_PIO(2,LED_5);
+		break;
+
+		case '4':
+			printf("\nSecond Column Third Button [8]");
+			usleep(delayTime);
+			Write_PIO(2,LED_8);
+		break;
+
+		case '8':
+			printf("\nSecond Column Fourth Button [0]");
+			usleep(delayTime);
+			Write_PIO(2,LED_0);
+		break;
+	}
+	Write_PIO(0,8);
+	Read_PIO(1);
+
+	switch(reply[4])
+	{
+		case '1':
+			printf("\nFourth Column First Button [F]");
+			usleep(delayTime);
+			Write_PIO(2,LED_F);
+		break;
+
+		case '2':
+			printf("\nFourth Column Second Button [E]");
+			usleep(delayTime);
+			Write_PIO(2,LED_E);
+		break;
+
+		case '4':
+			printf("\nFourth Column Third Button [D]");
+			usleep(delayTime);
+			Write_PIO(2,LED_D);
+		break;
+
+		case '8':
+			printf("\nFourth Column Fourth Button [C]");
+			usleep(delayTime);
+			Write_PIO(2,LED_C);
+		break;
+	}
+
+	Write_PIO(0,4);
+	Read_PIO(1);
+
+	switch(reply[4])
+	{
+		case '1':
+			printf("\nThird Column First Button [3]");
+			usleep(delayTime);
+			Write_PIO(2,LED_3);
+
+		break;
+
+		case '2':
+			printf("\nThird Column Second Button [6]");
+			usleep(delayTime);
+			Write_PIO(2,LED_6);
+		break;
+
+		case '4':
+			printf("\nThird Column Third Button [9]");
+			usleep(delayTime);
+			Write_PIO(2,LED_9);
+		break;
+
+		case '8':
+			printf("\nThird Column Fourth Button [B]");
+			usleep(delayTime);
+			Write_PIO(2,LED_B);
+		break;
+	}
 
     sprintf(message,"POST HTTP/1.1\r\n\r\nHost: %.2X:%.2X:%.2X:%.2X:%.2X:%.2X\r\n#4242",(unsigned char)macAdd.ifr_hwaddr.sa_data[0],(unsigned char)macAdd.ifr_hwaddr.sa_data[1],(unsigned char)macAdd.ifr_hwaddr.sa_data[2],(unsigned char)macAdd.ifr_hwaddr.sa_data[3],(unsigned char)macAdd.ifr_hwaddr.sa_data[4],(unsigned char)macAdd.ifr_hwaddr.sa_data[5]);
     close(fd);
@@ -548,7 +707,126 @@ int main(int argc, char *argv[])
 	    /* Keypad Section */
 	    /******************/
 	    /******************/
-	    getchar();
+	Write_PIO(0,1)
+	Read_PIO(1);
+
+	switch(reply[4])
+	{
+		case '1':
+			printf("\nFirst Column First Button [1]");
+			usleep(delayTime);
+			Write_PIO(2,LED_1);
+			break;
+		
+		break;
+
+		case '2':
+			printf("\nFirst Column Second Button [4]");
+			usleep(delayTime);
+			Write_PIO(2,LED_4);
+		break;
+
+		case '4':
+			printf("\nFirst Column Third Button [7]");
+			usleep(delayTime);
+			Write_PIO(2,LED_7);
+		break;
+
+		case '8':
+			printf("\nFirst Column Fourth Button [A]");
+			usleep(delayTime);
+			Write_PIO(2,LED_A);
+		break;
+	}	
+	Write_PIO(0,2)
+	Read_PIO(1);
+
+	switch(reply[4])
+	{
+		case '1':
+			printf("\nSecond Column First Button [2]");
+			usleep(delayTime);
+			Write_PIO(2,LED_2);
+		break;
+
+		case '2':
+			printf("\nSecond Column Second Button [5]");
+			usleep(delayTime);
+			Write_PIO(2,LED_5);
+		break;
+
+		case '4':
+			printf("\nSecond Column Third Button [8]");
+			usleep(delayTime);
+			Write_PIO(2,LED_8);
+		break;
+
+		case '8':
+			printf("\nSecond Column Fourth Button [0]");
+			usleep(delayTime);
+			Write_PIO(2,LED_0);
+		break;
+	}
+	Write_PIO(0,8)
+	Read_PIO(1);
+
+	switch(reply[4])
+	{
+		case '1':
+			printf("\nFourth Column First Button [F]");
+			usleep(delayTime);
+			Write_PIO(2,LED_F);
+		break;
+
+		case '2':
+			printf("\nFourth Column Second Button [E]");
+			usleep(delayTime);
+			Write_PIO(2,LED_E);
+		break;
+
+		case '4':
+			printf("\nFourth Column Third Button [D]");
+			usleep(delayTime);
+			Write_PIO(2,LED_D);
+		break;
+
+		case '8':
+			printf("\nFourth Column Fourth Button [C]");
+			usleep(delayTime);
+			Write_PIO(2,LED_C);
+		break;
+	}
+
+	Write_PIO(0,4)
+	Read_PIO(1);
+
+	switch(reply[4])
+	{
+		case '1':
+			printf("\nThird Column First Button [3]");
+			usleep(delayTime);
+			Write_PIO(2,LED_3);
+
+		break;
+
+		case '2':
+			printf("\nThird Column Second Button [6]");
+			usleep(delayTime);
+			Write_PIO(2,LED_6);
+		break;
+
+		case '4':
+			printf("\nThird Column Third Button [9]");
+			usleep(delayTime);
+			Write_PIO(2,LED_9);
+		break;
+
+		case '8':
+			printf("\nThird Column Fourth Button [B]");
+			usleep(delayTime);
+			Write_PIO(2,LED_B);
+		break;
+	}
 	    /******************/
 	    /******************/
 	    sprintf(message,"GET HTTP/1.1\r\n\r\nHost: %.2X:%.2X:%.2X:%.2X:%.2X:%.2X\r\n#4242",(unsigned char)macAdd.ifr_hwaddr.sa_data[0],(unsigned char)macAdd.ifr_hwaddr.sa_data[1],(unsigned char)macAdd.ifr_hwaddr.sa_data[2],(unsigned char)macAdd.ifr_hwaddr.sa_data[3],(unsigned char)macAdd.ifr_hwaddr.sa_data[4],(unsigned char)macAdd.ifr_hwaddr.sa_data[5]);
