@@ -7,7 +7,8 @@ int main()
 	enum KeypadPort portA = PORT_A;
 	enum KeypadPort portB = PORT_B;
 	enum KeypadPort portC = PORT_C;
-	char *keypadname = "/dev/pio0";
+	char *keypadname = "/dev/ttyACM0";
+	//char *keypadname = "/dev/pio0";
 	//char *keypadname = "dummyfile";
 	
 	enum KeypadButton pincode[4] = { KEY_NONE, KEY_NONE, KEY_NONE, KEY_NONE };
@@ -37,7 +38,7 @@ int main()
 		selectColumn(fd, col);
 		
 		//writeChar = getHexRepresentation(col);
-		writeChar = getHexRepresentation(pincode[count]);
+		writeChar = getHexRepresentation(pincode[col]);
 		write7seg(fd, writeChar);
 		
 		enum KeypadButton button = buttonPressed(fd, col);
@@ -53,31 +54,34 @@ int main()
 		}
 		else
 		{
-		  /*if (pressed)
+			if (pressed)
 			{
 				// ignore button held down
 				printf("held\n");
-				}*/
-			if (buttonIsNumeric(button))
+			}
+			else if (buttonIsNumeric(button))
 			{
 				// a new button was pressed
 				pincode[count] = button;
 				pressed = 1;
 				lastCol = col;
-				//	count++;
+				count++;
 				printf("count is %d ", count);
 			}			
 		}
 		
-		if (count == 4)
+		if (count == 5)
 		{
-			done = 1;
+		  done = 1;
 		}
 		
-		usleep(6500);
+		//usleep(5000);
+		usleep(10000);
 	}
 	
-	printf("pincode entered, exiting\n");
+	printf("pincode entered, %d %d %d %d\n", 
+			getRealNumber(pincode[0]), getRealNumber(pincode[1]), 
+			getRealNumber(pincode[2]), getRealNumber(pincode[3]));
 	getchar();
 	closeKeypad(fd);
 	
