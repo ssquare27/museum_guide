@@ -8,7 +8,7 @@ Password: lHAGuwsGd72x
 
 
 
-Useful SQL Commands for Server guys reading:
+Useful SQL Commands for Server team to use for reading database:
 
 "$mac = mysql_query(SELECT mac FROM IGEP where ip=ipjustreceived)"
 "$correctauthcode = mysql_query(SELECT authCode FROM IGEP WHERE mac=$mac)"
@@ -18,6 +18,6 @@ Useful SQL Commands for Server guys reading:
 "$filetostream = mysql_query(SELECT filePath FROM Audio WHERE audioCode=$audiocode AND expertise=$expertise AND language=$language)"
      
      
-SQL command to update log on playback:
+SQL command for Server team to use for writing to log upon client playback:
 
 "mysql_query(INSERT INTO Log (customerID, audioCode, dateTime) VALUES ( '$customerID', '$audioCode', (select now()) ) )"

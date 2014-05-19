@@ -15,31 +15,7 @@ AddOutputFilterByType DEFLATE application/x-javascript
 AddType 'text/html; charset=UTF-8' html
 
 
-### activate mod_expires
-ExpiresActive On
 
-	# 1 YEAR - doesn't change often
-	<FilesMatch "\.(flv|avi|mov|ppt|doc|mp3|wmv|wav)$">
-	ExpiresDefault A29030400
-	</FilesMatch>
-
-	# 1 WEEK - possible to be changed, unlikely
-	<FilesMatch "\.(jpg|jpeg|png|gif|swf|pdf|css|ico)$">
-	ExpiresDefault A604800
-	</FilesMatch>
-
-	### Expire everything else 1 day from when it's last modified
-	### (this uses the Alternative syntax)
-	ExpiresDefault "modification plus 1 day"
-
-	### Apply a Cache-Control header to index.php
-	<Files index.php>
-	Header append Cache-Control "public, must-revalidate"
-	</Files>
-
-	<FilesMatch "\.(pl|php|cgi|spl|scgi|fcgi|html|htm)$">
-	Header append Cache-Control "public, must-revalidate"
-	</FilesMatch>
 
 
 <IfModule mod_headers.c>
@@ -86,7 +62,7 @@ RewriteEngine on
 	RewriteRule ^log/?$ pages/log/log.php
 		RewriteRule ^log/detail/?$ pages/log/detail.php
 		RewriteRule ^log/statistics/?$ pages/log/statistics.php
-		RewriteRule ^log/current-location/?$ pages/holding.php	
+		RewriteRule ^log/current-location/?$ pages/log/location.php	
 		RewriteRule ^log/average-path/?$ pages/holding.php
 
 RewriteRule ^privacy-and-terms/?$ pages/privacy.php		
