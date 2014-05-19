@@ -141,6 +141,11 @@ def sql_query(query):
             cursor.execute(query)
             conn.commit()
             output = "OK"
+        elif query.find("INSERT") >= 0:
+            print query
+            cursor.execute(query)
+            conn.commit()
+            output = "OK"
         conn.close()
         return output
 
@@ -236,8 +241,10 @@ def decode_request(message, ip):
         #Decide if the link is valid, if not return error
         if sql_response.find("http") >= 0:
             print "Accepted\n"
-            query = "INSERT INTO Log (customerID, audioCode, dateTime) VALUES ( '%s', '%s', (select now())" % (str(customerID), str(audio_code))
-            sql_response = sql_query(query)
+            cusID = int(customerID)
+            audioC = int(audio_code)
+            query_b = "INSERT INTO Log (customerID, audioCode, dateTime) VALUES ( %d, %d, (select now()))" % (cusID, audioC)
+            sql_response = sql_query(query_b)
             print sql_response
 
             #Start the gstreamer server.
